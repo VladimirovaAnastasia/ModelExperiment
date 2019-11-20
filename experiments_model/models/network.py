@@ -68,11 +68,13 @@ def getPrediction(x, y, delay):
     hidden_layout = 3
     # количество нейронов в выходном слое
     exit = 1
+    # Количество эпох обучения
+    epoch = 500
     structure = [enter, hidden_layout, exit]
     print(x)
 
     coef = (np.sqrt(np.sum(np.square(x), axis=1)))
-    print('coef',coef)
+    print('coef', coef)
     X_new = np.repeat(coef, enter).reshape(len(x), enter)
     X = x / X_new
     Y = y
@@ -80,12 +82,8 @@ def getPrediction(x, y, delay):
     Y_train = np.vstack((Y[0:len(x), 0]))
 
     W, b = setup_and_init_weights(structure)
-    print(X_train)
-    print(Y_train)
-    print(W)
-    print(b)
 
-    while counter < 500:
+    while counter < epoch:
         W_delta, b_delta = init_delta_values(structure)
         avg_cost = 0
         k = 0
@@ -95,6 +93,7 @@ def getPrediction(x, y, delay):
             h, z = calculation_of_sum_and_F_activation(X_train[i, :], W, b)
             delta[3] = calculation_layer_delta(Y_train[i, 0], h[3], z[3])
             k += pow((Y_train[i, 0] - h[3]), 2)
+            print('это коэффициент',k)
             delta[2] = calculation_hidden_layer_delta(delta[3], W[2], z[2])
             W_delta[2] += np.dot(delta[3][:, np.newaxis], np.transpose(h[2][:, np.newaxis]))
             b_delta[2] += delta[3]
@@ -112,22 +111,23 @@ def getPrediction(x, y, delay):
             b_delta[2] = 0
 
         s = np.sum(k)
+        print('это эс',s)
         n = 1
-        p = 500
+
         # k = math.sqrt(s / (n * (p - 1))) * X_new
-        k = math.sqrt(s / (n * (p - 1))) * coef
+        k = math.sqrt(s / (n * (epoch - 1)))
         if counter == 1:
-            print(counter)
+            print(k)
         if counter == 25:
-            print(counter)
+            print(k)
         if counter == 50:
-            print(counter)
+            print(k)
         if counter == 75:
-            print(counter)
+            print(k)
         if counter == 100:
-            print(counter)
+            print(k)
         if counter == 125:
-            print(counter)
+            print(k)
         if counter == 150:
             print(counter)
         if counter == 200:
@@ -135,7 +135,7 @@ def getPrediction(x, y, delay):
         if counter == 400:
             print(k)
         if counter == 600:
-            print(counter)
+            print(k)
         k_func.append(k)
         counter += 1
 
@@ -144,8 +144,5 @@ def getPrediction(x, y, delay):
     plt.xlabel('Количество итераций')
     plt.show()
 
-    c = delay
-    print(x)
-
-    return x
+    return 'ok'
 

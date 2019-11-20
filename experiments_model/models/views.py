@@ -18,17 +18,20 @@ def index(request):
         i = 0
         global X
         global Y
-        n = len(parsed_string) + 2
+        n = len(parsed_string)
         X = np.empty(shape=[n, 2])
         Y = np.empty(shape=[n, 1])
+        print('это строчка',parsed_string)
         for item in parsed_string:
+            X[i, 0] = item['delay']
+            X[i, 1] = item['distance']
+            Y[i] = item['onField']
             i = i + 1
             #X[i] = item.time
-            X[i] = item['delay']
-            X[i+1] = item['distance']
-            Y[i] = item['onField']
         #return HttpResponse("<h2>Hello, {0}</h2>".format(name))
+        print("Входные значенияяя", X)
         mod.getPrediction(X, Y, parsed_string[0]['delay'])
+
         return HttpResponseRedirect('/thanks/')
     else:
         userform = UserForm()
