@@ -247,28 +247,40 @@ function currentDistance (obgMain, objUser) {
 		fPlot.setAttribute('stroke',"#4793bf");
 		fPlot2.setAttribute('stroke',"#4793bf");
 		sector.setAttribute('stroke',"#4793bf");
+		isActive = 0;
 	} else {
-		if ((obgMain - objUser) > 0) {
-			ikSensor = obgMain
+		if (obgMain === 400) {
+			console.log('Я в поле');
+			ikSensor = objUser;
+		} else if (objUser === 400) {
+			console.log('Мяч в поле');
+			ikSensor = obgMain;
 		} else {
-			ikSensor = objUser
+			if ((obgMain - objUser) > 0) {
+				console.log('ближе мой');
+				ikSensor = objUser;
+				console.log(ikSensor);
+			} else {
+				console.log('ближе обычный');
+				ikSensor = obgMain;
+				console.log(ikSensor)
+			}
 		}
-		console.log(obgMain, objUser, ikSensor);
-		fPlot.setAttribute('stroke',"#d6313c");
-		fPlot2.setAttribute('stroke',"#d6313c");
-		sector.setAttribute('stroke',"#d6313c");
-		document.getElementById("coordinates").innerHTML = ikSensor ;
-	}
+		isActive = 1;
 
+		console.log(obgMain, objUser, ikSensor);
+		fPlot.setAttribute('stroke', "#d6313c");
+		fPlot2.setAttribute('stroke', "#d6313c");
+		sector.setAttribute('stroke', "#d6313c");
+		document.getElementById("coordinates").innerHTML = ikSensor;
+	}
 
 }
 
 function Detection(posX, posY) {
    if ((posY>getY(posX)) && (posY>getY2(posX)) && (posY<Math.sqrt(radius*radius-xo*xo))){
-		isActive = 1;
 		IKsensor=Math.sqrt((posY-yo)**2+(posX+xo)**2);
    } else {
-   		isActive = 0;
    		IKsensor = 400;
    }
    currentDistance(obgMain, objUser);
