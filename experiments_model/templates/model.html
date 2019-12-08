@@ -1,10 +1,12 @@
 <style>
 	.main {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
+		flex-direction: row;
+		align-items: flex-start;
 		justify-content: center;
 		height: auto;
+
+		padding-top: 50px;
 	}
 	#field {
 		min-height: 400px;
@@ -46,63 +48,73 @@
 		display: flex;
 		flex-direction: row;
 	}
+	.header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
 </style>
 
-
-
-<div class="main">
-	<!--
-<form class="input-form">
-	<div class="movablediv"></div>
-  <label for="radius">Радиус обнаружения </label>
-  <input id="radius" name="radius" type="number" step="any" min="0">
-  <label for="xo">Начальное положение по оси ОХ </label>
-  <input id="xo" name="xo" type="number" step="any" min="0">
-  <label for="yo">Начальное положение по оси ОY </label>
-  <input id="yo" name="yo" type="number" step="any" min="0">
-
-  <input type="button" value="Заказать" onclick="setData()">
-
-</form>-->
-	<form method="post" class="form-hide">
-         {% csrf_token %}
-		<table>
-			{{ form }}
-		</table>
-		<input type="submit" value="Send" >
-	</form>
-
-    <div class="experiment-timer">
+<header class="header">
+	<div class="experiment-timer">
 		<p class="experiment-timer__head">Таймер</p>
 		<div class="clock" id="clock">00:00:00</div>
 		<button class="experiment-timer__button" onclick="startTimer()">Начать эксперимент</button>
 		<button class="experiment-timer__button" onclick="stopTimer()">Остановить таймер</button>
 	</div>
+</header>
 
-	<div class="coordinates">
-		<p class="coordinates__head">Координаты объекта:  </p>
-		<p class="coordinates-data" id="coordinates">0</p>
-		<p class="coordinates-" > см</p>
+<div class="main">
+
+	<div class="block">
+		<form method="post" class="form-hide">
+			 {% csrf_token %}
+			<table>
+				{{ form }}
+			</table>
+			<input type="submit" value="Send" >
+		</form>
+		<div class="coordinates">
+			<p class="coordinates__head">Координаты объекта:  </p>
+			<p class="coordinates-data" id="coordinates">0</p>
+			<p class="coordinates-" > см</p>
+		</div>
 	</div>
 
-	<div class="experiment-field" id="field">
-		<svg class="detection-area" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" >
-			<g transform="scale(1)">
-		 		<path  id="fplot" class="detection-area-plot" d="" stroke="#673E93"></path>
-		 		<path  id="fplot-2" class="detection-area-plot" d="" stroke="#673E93"></path>
-		 		<!--<path id="circle" d=""></path>-->
-		 		<circle id="sector" transform="rotate(-180 200 0)" r="100" cx="200" cy="0" stroke-dasharray ="104 524" stroke-dashoffset="210" fill="none"   stroke="#673E93"/>
-		 	</g>
-		 </svg>
-		<div id="ball"></div>
+	<div class="block">
+		<div class="experiment-field" id="field">
+			<svg class="detection-area" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" >
+				<g transform="scale(1)">
+					<path  id="fplot" class="detection-area-plot" d="" stroke="#673E93"></path>
+					<path  id="fplot-2" class="detection-area-plot" d="" stroke="#673E93"></path>
+					<!--<path id="circle" d=""></path>-->
+					<circle id="sector" transform="rotate(-180 200 0)" r="100" cx="200" cy="0" stroke-dasharray ="104 524" stroke-dashoffset="210" fill="none"   stroke="#673E93"/>
+				</g>
+			 </svg>
+			<div id="ball"></div>
 
+		</div>
 	</div>
+	<div class="block">
+		<form class="input-form">
+			<div class="movablediv"></div>
+		  	<label for="radius">Радиус обнаружения </label>
+		  	<input id="radius" name="radius" type="number" step="any" min="0">
+			<label for="xo">Начальное положение по оси ОХ </label>
+			<input id="xo" name="xo" type="number" step="any" min="0">
+			<label for="yo">Начальное положение по оси ОY </label>
+			<input id="yo" name="yo" type="number" step="any" min="0">
+		  	<input type="button" value="Заказать" onclick="setData()">
+		</form>
+	</div>
+
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript">
 
-alpha = 80; // угол обзора датчика
+alpha = 80; // 90 - угол обзора датчика/2
 time = 0; //отсчет эксперимента
 nplotpoints = 300; // количество точек для построения графика
 xo = -200; //начальное положение объекта в поле
@@ -128,9 +140,10 @@ sensorDelay = 100; // задержка опроса датчика в мс
 var IKsensor;
 var currentExperiment;
 var stopCount ;
+var ikSensor;
 k = 0; // счетчик таймера
-
-
+var obgMain = 400;
+var objUser = 400;
 makePlot();
 setSector();
 setTimeout('Run()', 100);
@@ -220,27 +233,46 @@ function Run() {
 
 // Определяем реакцию датчика
 function Pos() {
-  var ball = document.getElementById('ball'); // берем интересующий элемент
-  var posX = ball.offsetLeft;  // верхний отступ эл-та от родителя
-  var posY = ball.offsetTop; // левый отступ эл-та от родителя
-   if ( (posY>getY(posX)) && (posY>getY2(posX)) && (posY<Math.sqrt(radius*radius-xo*xo)) ){
-		console.log('yes');
-		isActive = 1;
-		fPlot.setAttribute('stroke',"#d6313c");
-		fPlot2.setAttribute('stroke',"#d6313c");
-		sector.setAttribute('stroke',"#d6313c");
-		IKsensor=Math.sqrt((posY-yo)**2+(posX+xo)**2);
-		document.getElementById("coordinates").innerHTML = IKsensor ;
-		return IKsensor, isActive
-   } else {
-   		isActive = 0;
-   		IKsensor = 400;
-   		document.getElementById("coordinates").innerHTML = IKsensor ;
+	var ball = document.getElementById('ball'); // берем интересующий элемент
+	var posX = ball.offsetLeft;  // верхний отступ эл-та от родителя
+	var posY = ball.offsetTop; // левый отступ эл-та от родителя
+	obgMain = Detection(posX, posY);
+}
+
+// Определяем выходные данные датчика при движении 2х объектов
+function currentDistance (obgMain, objUser) {
+	if ((obgMain - objUser) === 0){
+		ikSensor = 400;
+   		document.getElementById("coordinates").innerHTML = ikSensor ;
 		fPlot.setAttribute('stroke',"#4793bf");
 		fPlot2.setAttribute('stroke',"#4793bf");
 		sector.setAttribute('stroke',"#4793bf");
-		return isActive
+	} else {
+		if ((obgMain - objUser) > 0) {
+			ikSensor = obgMain
+		} else {
+			ikSensor = objUser
+		}
+		console.log(obgMain, objUser, ikSensor);
+		fPlot.setAttribute('stroke',"#d6313c");
+		fPlot2.setAttribute('stroke',"#d6313c");
+		sector.setAttribute('stroke',"#d6313c");
+		document.getElementById("coordinates").innerHTML = ikSensor ;
+	}
+
+
+}
+
+function Detection(posX, posY) {
+   if ((posY>getY(posX)) && (posY>getY2(posX)) && (posY<Math.sqrt(radius*radius-xo*xo))){
+		isActive = 1;
+		IKsensor=Math.sqrt((posY-yo)**2+(posX+xo)**2);
+   } else {
+   		isActive = 0;
+   		IKsensor = 400;
    }
+   currentDistance(obgMain, objUser);
+   return IKsensor
 }
 
 // Формирование результатов экспериментов
@@ -257,15 +289,15 @@ function addData(time, delay, distance, realState) {
 // Таймер
 var startTimer = function(){
 	currentExperiment = setInterval(function(){
-		addData(experimentTime, sensorDelay, IKsensor, isActive);
+		addData(experimentTime, sensorDelay, ikSensor, isActive);
 		experimentTime = experimentTime + systemTime;
 	}, systemTime);
 	var intervalID = setInterval(function(){
+		k=k+1;
 		var now = new Date();
 		var clock = document.getElementById("clock");
 		now.setHours(0, 0, k, 0);
 		clock.innerHTML = now.toLocaleTimeString();
-		k=k+1;
 	}, 1000);
 	stopCount = intervalID;
 };
@@ -280,7 +312,7 @@ var stopTimer = function(){
 	//sendData(data);
 };
 
-// Отправка данные на локальный сервер
+// Отправка данных на локальный сервер
 var sendData = function (dataOfExperiment) {
 	$.ajax({
 		url: 'http://127.0.0.1:8000/data/',
@@ -313,5 +345,8 @@ $('html').mousemove(function(e){
 	var x = e.pageX - this.offsetLeft;
 	var y = e.pageY - this.offsetTop;
 	$('div.movablediv').css({'top': y,'left': x});
+	let posX = ball.offsetLeft;  // верхний отступ эл-та от родителя
+	let posY = ball.offsetTop; // левый отступ эл-та от родителя
+	objUser = Detection(x - field.offsetLeft, y - field.offsetTop);
 });
 </script>
