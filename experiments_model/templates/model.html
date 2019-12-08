@@ -54,6 +54,16 @@
 		align-items: center;
 		justify-content: center;
 	}
+	.form-hide {
+		display: none;
+	}
+	.input-form {
+		display: none;
+	}
+	.block {
+		width: 30%;
+	}
+
 </style>
 
 <header class="header">
@@ -73,7 +83,7 @@
 			<table>
 				{{ form }}
 			</table>
-			<input type="submit" value="Send" >
+			<input type="submit" value="Send" class="send" >
 		</form>
 		<div class="coordinates">
 			<p class="coordinates__head">Координаты объекта:  </p>
@@ -97,8 +107,8 @@
 		</div>
 	</div>
 	<div class="block">
+		<div class="movablediv"></div>
 		<form class="input-form">
-			<div class="movablediv"></div>
 		  	<label for="radius">Радиус обнаружения </label>
 		  	<input id="radius" name="radius" type="number" step="any" min="0">
 			<label for="xo">Начальное положение по оси ОХ </label>
@@ -319,8 +329,10 @@ var stopTimer = function(){
 	clearInterval(currentExperiment);
 
 	let json = JSON.stringify(data);
-	let experimentData = document.getElementById("id_data_of_experiment")
+	let experimentData = document.getElementById("id_data_of_experiment");
 	experimentData.value = json;
+
+	document.querySelector('.send').click();
 	//sendData(data);
 };
 

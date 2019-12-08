@@ -63,13 +63,13 @@ def predict_y(Weights, betta, X, Y):
         print(j)
         print(h[3])
         print(Y[j, 0])
-        error = pow((Y[j, 0] - h[3]), 2)
-        error_func.append(error)
+        #error = pow((Y[j, 0] - h[3]), 2)
+        #error_func.append(error)
 
-    plt.plot(error_func)
-    plt.ylabel('Погрешность обучения')
-    plt.xlabel('Выборки')
-    plt.show()
+    #plt.plot(error_func)
+    #plt.ylabel('Погрешность обучения')
+    #plt.xlabel('Выборки')
+    #plt.show()
 
 
 def getPrediction(x, y, delay):
@@ -81,7 +81,7 @@ def getPrediction(x, y, delay):
     # входной слой
     enter = 2
     # количество нейронов в скрытом слое
-    hidden_layout = 3
+    hidden_layout = 2
     # количество нейронов в выходном слое
     exit = 1
     # Количество эпох обучения
@@ -158,6 +158,8 @@ def getPrediction(x, y, delay):
             print(200)
         if counter == 400:
             print(400)
+        if counter == 499:
+            print('Итоговая погрешность', k)
         if counter == 600:
             print(600)
         k_func.append(k)
