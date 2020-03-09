@@ -79,7 +79,7 @@ def getPrediction(x, y, delay):
     delta = {}
     k_func = []
     # входной слой
-    enter = 2
+    enter = 3
     # количество нейронов в скрытом слое
     hidden_layout = 2
     # количество нейронов в выходном слое

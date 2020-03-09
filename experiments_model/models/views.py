@@ -19,12 +19,13 @@ def index(request):
         global X
         global Y
         n = len(parsed_string)
-        X = np.empty(shape=[n, 2])
+        X = np.empty(shape=[n, 3])
         Y = np.empty(shape=[n, 1])
         print('это строчка',parsed_string)
         for item in parsed_string:
             X[i, 0] = item['delay']
-            X[i, 1] = item['distance']
+            X[i, 1] = item['distance1']
+            X[i, 2] = item['distance2']
             Y[i] = item['onField']
             i = i + 1
             #X[i] = item.time
