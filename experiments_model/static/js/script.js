@@ -24,11 +24,12 @@ xo2 = -300;
 field = document.getElementById("field");
 var isActive; // индикатор попадания объекта в зону детектирования датчика
 no = 1;
-balls_quantity = 1;
+balls_quantity = 2;
 sty = [];
 yp = [];
+xp = [];
 balls_in_field = [];
-speed=200; // скорость
+speed= 300; // скорость
 T = 0.3; // задержка датчика от 0.3 минуты до 5 минут
 systemTime = 100; // частота записи данных состояния системы
 experimentTime = 0; // текущее время эксперимента
@@ -58,8 +59,8 @@ setSector(radius, xo, yo, sector);
 makePlot(xo2, yo, fPlota, fPlota2);
 setSector(radius, xo2, yo, sector2);
 
-document.getElementById(`ball`).style.top = 200 + "px";
-setTimeout('Run(xo, yo, radius)', speed);
+//document.getElementById(`ball`).style.top = 200 + "px";
+//setTimeout('Run(xo, yo, radius)', speed);
 
 // Получаем данные из формы о координатах датчика и радиусе обнаружения
 function setData(){
@@ -138,6 +139,7 @@ function CreateBalls(){
 	for (i=0; i<balls_quantity; i++){
 		field.insertAdjacentHTML('afterbegin', `<div id="ball-${i}" class="ball"</div>`);
 		yp[i] = 100 + 500/balls_quantity*i;
+		xp[i] = 50 + i*30;
 		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
 }
@@ -148,39 +150,38 @@ let current_ball;
 function Run2(){
 	for (i=0; i<balls_quantity; i++){
 		step_y = 4;
-	  	yp[i] += step_y;
-	  	if ((yp[i] < -500) || (yp[i] >500 )) {
-	  		yp[i] = 0;
+	  	xp[i] += step_y;
+	  	if ((xp[i] < -500) || (xp[i] >500 )) {
+	  		xp[i] = 0;
 	  	}
 	  	//document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 		current_ball = document.getElementById(`ball-${i}`);
-	    current_ball.style.left = yp[i] + "px";
+	    current_ball.style.left = xp[i] + "px";
 
 	    Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, i, 1);
 	    Pos(xo2, yo, radius, fPlota, fPlota2, sector2, current_ball, i, 2);
 
-	    balls_movement_2 = setTimeout('Run2()', speed);
 	}
+
+	balls_movement_2 = setTimeout('Run2()', speed);
 }
 
 
 function Run(xo, yo, radius) {
-   for (i = 0; i < no; ++ i) {
-	    sty[i] = 2 + i*2;
-	  	yp[i] += sty[i];
-	  	if ((yp[i] < -500) || (yp[i] >500 )) {
-	  		yp[i] = 0
+	    let sty = 4;
+	  	yp[0] += sty;
+	  	if ((yp[0] < -500) || (yp[0] >500 )) {
+	  		yp[0] = 0
 	  	}
 	  	//document.getElementById("ball").style.top = yp[i] + "px";
 	    current_ball = document.getElementById("ball");
-	    current_ball.style.left = yp[i] + "px";
+	    current_ball.style.left = yp[0] + "px";
 
 
 	    Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, balls_quantity, 1);
 	    Pos(xo2, yo, radius, fPlota, fPlota2, sector2, current_ball, balls_quantity, 2);
 
 		balls_movement_1 = setTimeout('Run(xo, yo, radius)', speed);
-    }
 }
 
 
@@ -289,7 +290,7 @@ var startTimer = function(){
 				sum = sum + 1;
 			}
 		}
-		console.log(sum)
+		console.log(sum);
 
 		detector1 = Math.max.apply(null, detector_1_value);
 		detector2 = Math.max.apply(null, detector_2_value);
@@ -352,6 +353,6 @@ addEventListener("keydown", function(event) {
 	} else if ((event.keyCode === 32)&&(balls_movement === false)){
     	balls_movement = true;
 		setTimeout('Run2()', speed);
-    	setTimeout('Run()', speed);
+    	//setTimeout('Run()', speed);
 	}
   });
