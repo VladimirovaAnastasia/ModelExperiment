@@ -24,12 +24,12 @@ xo2 = -300;
 field = document.getElementById("field");
 var isActive; // индикатор попадания объекта в зону детектирования датчика
 no = 1;
-balls_quantity = 2;
+balls_quantity = 4;
 sty = [];
 yp = [];
 xp = [];
 balls_in_field = [];
-speed= 300; // скорость
+speed= 200; // скорость
 T = 0.3; // задержка датчика от 0.3 минуты до 5 минут
 systemTime = 100; // частота записи данных состояния системы
 experimentTime = 0; // текущее время эксперимента
@@ -138,7 +138,7 @@ setTimeout('Run2()', speed);
 function CreateBalls(){
 	for (i=0; i<balls_quantity; i++){
 		field.insertAdjacentHTML('afterbegin', `<div id="ball-${i}" class="ball"</div>`);
-		yp[i] = 100 + 500/balls_quantity*i;
+		yp[i] = 100 + 200/balls_quantity*i;
 		xp[i] = 50 + i*30;
 		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
@@ -233,7 +233,7 @@ function currentDistance (obgMain, objUser, fPlot, fPlot2, sector) {
 
 
 function Detection(posX, posY, xo, yo, radius, fPlot, fPlot2, sector, i, detector) {
-
+   //if (i===0) {console.log(posY, posX, xo, getY2(posX, xo, yo))}
    if ((posY>getY(posX, xo, yo)) && (posY>getY2(posX, xo, yo)) && (posY<Math.sqrt(radius*radius-xo*xo))){
 		IKsensor=Math.sqrt((posY-yo)**2+(posX+xo)**2);
 		if (detector === 1) {
@@ -263,7 +263,6 @@ function Detection(posX, posY, xo, yo, radius, fPlot, fPlot2, sector, i, detecto
 
     console.log('Первый', detector_1);
 	console.log('Второй', detector_2);
-	console.log('fsdf', detector_2_value);
 
    //currentDistance(obgMain, objUser, fPlot, fPlot2, sector);
    return IKsensor
@@ -284,13 +283,15 @@ function addData(time, delay, distance1, distance2, realState) {
 // Таймер
 var startTimer = function(){
 	currentExperiment = setInterval(function(){
-		sum = 0;
+		let sum = 0;
 		for (let j=0; j<balls_quantity; j++) {
-			if (detector_1[i]===1 || detector_2[i]===1) {
+			if (detector_1[j]===1) {
+				sum = sum + 1;
+			}
+			if (detector_2[j]===1) {
 				sum = sum + 1;
 			}
 		}
-		console.log(sum);
 
 		detector1 = Math.max.apply(null, detector_1_value);
 		detector2 = Math.max.apply(null, detector_2_value);
