@@ -9,6 +9,7 @@ urlpatterns = [
     #path('', views.index, name='home'),
     #path('admin/', admin.site.urls),
     url(r'^$', views.index, name="index"),
+    path('room/', views.room),
     path('thanks/', views.thanks),
     #path('data/', views.data_of_experiment)
 

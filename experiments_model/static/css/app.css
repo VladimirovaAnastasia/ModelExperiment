@@ -63,3 +63,7 @@
 	.block {
 		width: 30%;
 	}
+
+	circle {
+		opacity: 0.5;
+	}

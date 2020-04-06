@@ -42,3 +42,5 @@ def index(request):
 def thanks(request):
     return HttpResponse("<h2>Hello, {0}</h2>".format(name))
 
+def room(request):
+    return render(request, "room.html")

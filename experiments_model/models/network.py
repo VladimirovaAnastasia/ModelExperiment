@@ -3,13 +3,19 @@ import math
 import numpy.random as r
 import matplotlib.pyplot as plt
 
+global coef
+
 
 def f(x):
-    return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+    # return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+    return 1 / (1 + np.exp(-x))
+
 
 
 def derivative_f(x):
-    return (1 - f(x) * f(x))
+    fx = f(x)
+    return fx * (1 - fx)
+    # return 4 / ((np.exp(x) + np.exp(-x)) * (np.exp(x) + np.exp(-x)))
 
 
 def setup_and_init_weights(structure):
@@ -61,52 +67,53 @@ def predict_y(Weights, betta, X, Y):
     for j in range(m):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
         print(j)
-        print(h[3])
+        print(h[3] * coef)
         print(Y[j, 0])
-        #error = pow((Y[j, 0] - h[3]), 2)
-        #error_func.append(error)
+        # error = pow((Y[j, 0] - h[3]), 2)
+        # error_func.append(error)
 
-    #plt.plot(error_func)
-    #plt.ylabel('Погрешность обучения')
-    #plt.xlabel('Выборки')
-    #plt.show()
+    # plt.plot(error_func)
+    # plt.ylabel('Погрешность обучения')
+    # plt.xlabel('Выборки')
+    # plt.show()
 
 
-def getPrediction(x, y, delay):
+def getPrediction(x, y):
     counter = 0
     alpha = 0.1
     counter = 0
     delta = {}
     k_func = []
     # входной слой
-    enter = 3
-    # количество нейронов в скрытом слое
-    hidden_layout = 2
+    enter = len(x[0])
+    print(enter, 'ВХОД')
     # количество нейронов в выходном слое
     exit = 1
+    # количество нейронов в скрытом слое
+    hidden_layout = (enter + exit) // 2
+    print(hidden_layout, 'СКРЫТЫЙ')
     # Количество эпох обучения
-    epoch = 500
+    epoch = 2000
     structure = [enter, hidden_layout, exit]
 
     coef = (np.sqrt(np.sum(np.square(x), axis=1)))
+    print(coef, coef.shape, 'coef')
     X_new = np.repeat(coef, enter).reshape(len(x), enter)
+    print(X_new, X_new.shape, 'X_new')
     X = x / X_new
+    print(X, X.shape, 'X ')
     Y = y
-    print(len(x))
     trainData = len(x) * 9 // 10
-    print(trainData)
+    # print(trainData)
     testData = len(x) - trainData
-    print(testData)
+    # print(testData)
     X_train = np.vstack((X[0:trainData, 0:enter]))
     Y_train = np.vstack((Y[0:trainData, 0]))
-    print(trainData)
-    print(testData)
+    # print(trainData)
+    # print(testData)
     X_test = np.vstack((X[trainData:len(x), 0:enter]))
-    print(X_test)
-    Y_test = np.vstack((Y[trainData:len(x), 0]))
 
-    # X_train = np.vstack((X[0:len(x), 0:enter]))
-    # Y_train = np.vstack((Y[0:len(x), 0]))
+    Y_test = np.vstack((Y[trainData:len(x), 0]))
 
     W, b = setup_and_init_weights(structure)
 
@@ -141,23 +148,27 @@ def getPrediction(x, y, delay):
         # k = math.sqrt(s / (n * (p - 1))) * X_new
         k = math.sqrt(s / (n * (epoch - 1)))
         if counter == 1:
-            print(1)
+            print(k)
         if counter == 25:
-            print(25)
+            print(k)
         if counter == 50:
-            print(50)
+            print(k)
         if counter == 75:
-            print(75)
+            print(k)
         if counter == 100:
-            print(100)
+            print(k)
         if counter == 125:
-            print(125)
+            print(k)
         if counter == 150:
-            print(150)
+            print(k)
         if counter == 200:
-            print(200)
+            print(k)
+        if counter == 200:
+            print(k)
+        if counter == 300:
+            print(k)
         if counter == 400:
-            print(400)
+            print(k)
         if counter == 499:
             print('Итоговая погрешность', k)
         if counter == 600:

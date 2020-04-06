@@ -24,7 +24,7 @@ xo2 = -300;
 field = document.getElementById("field");
 var isActive; // индикатор попадания объекта в зону детектирования датчика
 no = 1;
-balls_quantity = 4;
+balls_quantity = 3
 sty = [];
 yp = [];
 xp = [];
@@ -324,6 +324,7 @@ var stopTimer = function(){
 
 	let json = JSON.stringify(data);
 	let experimentData = document.getElementById("id_data_of_experiment");
+	console.log(experimentData)
 	experimentData.value = json;
 
 	document.querySelector('.send').click();
