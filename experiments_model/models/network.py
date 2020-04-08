@@ -61,13 +61,13 @@ def calculation_hidden_layer_delta(delta_layer_delta, w_l, z_l):
     return np.dot(np.transpose(w_l), delta_layer_delta) * derivative_f(z_l)
 
 
-def predict_y(Weights, betta, X, Y):
+def predict_y(Weights, betta, X, Y, k):
     error_func = []
     m = len(Y)
     for j in range(m):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
         print(j)
-        print(h[3] * coef)
+        print(h[3] )
         print(Y[j, 0])
         # error = pow((Y[j, 0] - h[3]), 2)
         # error_func.append(error)
@@ -93,14 +93,16 @@ def getPrediction(x, y):
     hidden_layout = (enter + exit) // 2
     print(hidden_layout, 'СКРЫТЫЙ')
     # Количество эпох обучения
-    epoch = 2000
+    epoch = 500
     structure = [enter, hidden_layout, exit]
 
     coef = (np.sqrt(np.sum(np.square(x), axis=1)))
     print(coef, coef.shape, 'coef')
     X_new = np.repeat(coef, enter).reshape(len(x), enter)
     print(X_new, X_new.shape, 'X_new')
+    print(x.shape)
     X = x / X_new
+    X[np.isnan(X)] = 0
     print(X, X.shape, 'X ')
     Y = y
     trainData = len(x) * 9 // 10
@@ -109,6 +111,15 @@ def getPrediction(x, y):
     # print(testData)
     X_train = np.vstack((X[0:trainData, 0:enter]))
     Y_train = np.vstack((Y[0:trainData, 0]))
+
+    i = 0
+    file = open('text.txt', 'w')
+    for index in X_train:
+        file.write(str(int(Y_train[i ,0])) + ' ')
+        for item in index:
+            file.write(str(item) + ' ')
+        file.write('\n')
+        i = i + 1
     # print(trainData)
     # print(testData)
     X_test = np.vstack((X[trainData:len(x), 0:enter]))
@@ -181,4 +192,6 @@ def getPrediction(x, y):
     plt.xlabel('Количество итераций')
     plt.show()
 
-    predict_y(W, b, X_test, Y_test)
+    m = (np.sqrt(np.sum(np.square(x), axis=1)))
+
+    predict_y(W, b, X_test, Y_test, m)

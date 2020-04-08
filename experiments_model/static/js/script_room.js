@@ -14,7 +14,7 @@ var balls_movement = true;
 field = document.getElementById("field");
 var isActive; // индикатор попадания объекта в зону детектирования датчика
 
-balls_quantity = 10;
+balls_quantity = 3;
 sty = [];
 yp = [];
 xp = [];
@@ -33,7 +33,7 @@ var obgMain = 400;
 
 
 var sectors = [];
-var number_circles = 10;
+var number_circles = 30;
 //var x_variable = [ 25, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575 ];
 //var y_variable = [ 25, 75, 125, 175, 225, 275, 325, 375 ];
 var x_variable = [ 52, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 550];
@@ -68,12 +68,11 @@ setTimeout('Run2()', speed);
 function CreateBalls(){
 	for (i=0; i<balls_quantity; i++){
 		field.insertAdjacentHTML('afterbegin', `<div id="ball-${i}" class="ball"</div>`);
-		yp[i] =  400/balls_quantity*i;
-		if (i % 3 == 0) {
-		    xp[i] =  150 - i* (Math.random() * (30 - 10) + 10);
-        } else {
-		    xp[i] = -150 +  i* (Math.random() * (30 - 10) + 10);
-        }
+		//yp[i] =  400/balls_quantity*i;
+        yp[i] = getRandomInt(5, 395);
+
+		xp[i] =  -300 + getRandomInt(5, 200);
+
 		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
 }
@@ -82,15 +81,24 @@ let step_y;
 let current_ball;
 let isActiveFiedls=[];
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+
+
+
 function Run2(){
 	for (i=0; i<balls_quantity; i++){
+	    current_ball = document.getElementById(`ball-${i}`);
 		step_y = 4;
 	  	xp[i] += step_y;
 	  	if ((xp[i] < -500) || (xp[i] >800 )) {
-	  		xp[i] = -400;
+	  		xp[i] = -300 + getRandomInt(5, 200);
+	  		current_ball.style.top = getRandomInt(1, 350) + "px";
 	  	}
 	  	//document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
-		current_ball = document.getElementById(`ball-${i}`);
+
 	    current_ball.style.left = xp[i] + "px";
 	    //Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, i, 1);
 	    //Pos(xo2, yo, radius, fPlota, fPlota2, sector2, current_ball, i, 2);
@@ -158,7 +166,7 @@ function Detection__front(posX, posY, i) {
 function addData(time, delay, balls, balls_field, detectors, detectors_field, detection, actually) {
   data.push({
     //time: time,
-    delay: delay,
+    //delay: delay,
     //balls: balls,
 	balls_field: balls_field,
     //detectors: detectors,
@@ -192,7 +200,7 @@ var startTimer = function(){
 		experimentTime = experimentTime + systemTime;
 	}, systemTime);
 	var intervalID = setInterval(function(){
-		k=k+1;
+		k = k+1;
 		var now = new Date();
 		var clock = document.getElementById("clock");
 		now.setHours(0, 0, k, 0);
