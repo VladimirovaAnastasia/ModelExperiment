@@ -11,7 +11,6 @@ def f(x):
     return 1 / (1 + np.exp(-x))
 
 
-
 def derivative_f(x):
     fx = f(x)
     return fx * (1 - fx)
@@ -49,8 +48,13 @@ def calculation_of_sum_and_F_activation(x, W, b):
     return h, z
 
 
+# h - функция активации
+
 def calculation_layer_delta(y, h_out, z_out):
-    return (h_out - y) * derivative_f(z_out)
+    # для логистической функции
+    return (h_out - y)
+    # для mse
+    # return (h_out - y) * derivative_f(z_out)
 
 
 def calculation_layer_difference(y, h_out):
@@ -64,11 +68,19 @@ def calculation_hidden_layer_delta(delta_layer_delta, w_l, z_l):
 def predict_y(Weights, betta, X, Y, k):
     error_func = []
     m = len(Y)
+    true_pos = 0
+    true_neg = 0
+    false_pos = 0
+    false_neg = 0
+    answer = 0
     for j in range(m):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
-        print(j)
-        print(h[3] )
+        print(h[3])
         print(Y[j, 0])
+        if (Y[j, 0] - h[3] > 0.5):
+            answer = 1
+        else:
+            answer = 0
         # error = pow((Y[j, 0] - h[3]), 2)
         # error_func.append(error)
 
@@ -80,7 +92,7 @@ def predict_y(Weights, betta, X, Y, k):
 
 def getPrediction(x, y):
     counter = 0
-    alpha = 0.1
+    alpha = 0.01
     counter = 0
     delta = {}
     k_func = []
@@ -96,15 +108,51 @@ def getPrediction(x, y):
     epoch = 500
     structure = [enter, hidden_layout, exit]
 
+    l = 0
+    file = open('text.txt', 'w')
+    for index in x:
+        file.write(str(int(y[l, 0])) + ' ')
+        for item in index:
+            file.write(str(item) + ' ')
+        file.write('\n')
+        l = l + 1
+
+    # нормируем данные  пределах [0;1]
     coef = (np.sqrt(np.sum(np.square(x), axis=1)))
-    print(coef, coef.shape, 'coef')
     X_new = np.repeat(coef, enter).reshape(len(x), enter)
-    print(X_new, X_new.shape, 'X_new')
-    print(x.shape)
     X = x / X_new
     X[np.isnan(X)] = 0
-    print(X, X.shape, 'X ')
+
+    # нормируем данные методом минимакс в [0;1]
+    max_x = x.max(axis=0)
+    min_x = x.min(axis=0)
+    print(max_x)
+    print(min_x)
+
+    dif = max_x - min_x
+
+    print(dif)
+
+    p = 0
+    for item in dif:
+        print(item)
+        print(max_x[p])
+        if (item == 0):
+            print(max_x[p], 'макс в столбце')
+            dif[p] = max_x[p]
+            p = p + 1
+    print(dif)
+
+    X = (x - min_x) / dif
+    print(X, 'X')
+
+    # не нормируем данные
+    X = x
+
+
     Y = y
+
+
     trainData = len(x) * 9 // 10
     # print(trainData)
     testData = len(x) - trainData
@@ -112,14 +160,6 @@ def getPrediction(x, y):
     X_train = np.vstack((X[0:trainData, 0:enter]))
     Y_train = np.vstack((Y[0:trainData, 0]))
 
-    i = 0
-    file = open('text.txt', 'w')
-    for index in X_train:
-        file.write(str(int(Y_train[i ,0])) + ' ')
-        for item in index:
-            file.write(str(item) + ' ')
-        file.write('\n')
-        i = i + 1
     # print(trainData)
     # print(testData)
     X_test = np.vstack((X[trainData:len(x), 0:enter]))
@@ -136,12 +176,16 @@ def getPrediction(x, y):
             delta = {}
             h, z = calculation_of_sum_and_F_activation(X_train[i, :], W, b)
             delta[3] = calculation_layer_delta(Y_train[i, 0], h[3], z[3])
-            k += pow((Y_train[i, 0] - h[3]), 2)
+            # k += pow((Y_train[i, 0] - h[3]), 2)
+            k = k + (- np.multiply(Y_train[i, 0], np.log(h[3] + 0.0000000001)) - np.multiply(1.0 - Y_train[i, 0],
+                                                                                             np.log(1.0 - h[
+                                                                                                 3] + + 0.0000000001))).sum()
             delta[2] = calculation_hidden_layer_delta(delta[3], W[2], z[2])
-            W_delta[2] += np.dot(delta[3][:, np.newaxis], np.transpose(h[2][:, np.newaxis]))
-            b_delta[2] += delta[3]
-            W_delta[1] += np.dot(delta[2][:, np.newaxis], np.transpose(h[1][:, np.newaxis]))
-            b_delta[1] += delta[2]
+            # delta[2] = np.multiply(delta[3] * W[2][:, 0: -1], np.multiply(h[3], 1.0 - h[3]))
+            W_delta[2] = np.dot(delta[3][:, np.newaxis], np.transpose(h[2][:, np.newaxis]))
+            b_delta[2] = delta[3]
+            W_delta[1] = np.dot(delta[2][:, np.newaxis], np.transpose(h[1][:, np.newaxis]))
+            b_delta[1] = delta[2]
 
             W[1] = W[1] - alpha * W_delta[1]
             b[1] = b[1] - alpha * b_delta[1]
@@ -157,7 +201,10 @@ def getPrediction(x, y):
         n = 1
 
         # k = math.sqrt(s / (n * (p - 1))) * X_new
-        k = math.sqrt(s / (n * (epoch - 1)))
+        # k = math.sqrt(s / (n * (epoch - 1)))
+        # k = math.sqrt(s) / len(Y_train)
+        # k = math.sqrt((s) / (2 * (len(Y_train - 1))))
+        k = s / len(Y_train)
         if counter == 1:
             print(k)
         if counter == 25:

@@ -1,11 +1,14 @@
-.main {
+    body {
+		font-size: 14px;
+	}
+	.main {
 		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
+		flex-direction: column;
+		align-items: center;
 		justify-content: center;
 		height: auto;
 
-		padding-top: 50px;
+		padding-top: 20px;
 	}
 	#field {
 		min-height: 400px;
@@ -43,7 +46,29 @@
 	.input-form {
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
+
+	input {
+		border: 2px solid #57b0ff;
+		border-radius: 2px;
+		width: 130px;
+		padding: 10px 16px;
+		margin: 8px 0;
+		cursor: pointer;
+		transition: 0.5s;
+	}
+
+	input[type=button] {
+		background-color: #FFFFFF;
+	}
+
+	input[type=button]:hover {
+		background-color: #57b0ff;
+		color: #FFFFFF;
+	}
+
 	.coordinates {
 		display: flex;
 		flex-direction: row;
@@ -57,13 +82,41 @@
 	.form-hide {
 		display: none;
 	}
-	.input-form {
-		display: none;
-	}
-	.block {
-		width: 30%;
-	}
-
 	circle {
 		opacity: 0.5;
+	}
+
+	.timers {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.timers__button {
+		width: 118px;
+		margin-bottom: 20px;
+		background-color: white;
+    	color: black;
+    	border: 2px solid #4CAF50;
+		border-radius: 2px;
+		padding: 10px 16px;
+		transition-duration: 0.4s;
+		cursor: pointer;
+	}
+
+	.timers__button:hover {
+		background-color: #4CAF50; /* Green */
+   	 	color: white;
+	}
+
+	.timers__button--active {
+		background-color: #4CAF50; /* Green */
+   	 	color: white;
+	}
+
+	#configuration {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
