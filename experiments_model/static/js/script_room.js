@@ -117,6 +117,7 @@ function CreateBalls(balls_quantity){
 		//yp[i] =  400/balls_quantity*i;
         yp[i] = getRandomInt(5, 400);
 		xp[i] =  -400 + getRandomInt(5, 100);
+		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
 }
 
