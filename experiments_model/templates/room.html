@@ -26,6 +26,8 @@
 			<p class="coordinates__head">Координаты объекта:  </p>
 			<p class="coordinates-data" id="coordinates">0</p>
 			<p class="coordinates-" > см</p>-->
+        <div id="experiment_data">
+        </div>
         <div class="timers">
             <p>Задать время эксперимента</p>
             <div id="all_time">
@@ -66,9 +68,9 @@
             <label for="objects">Количество объектов</label>
 			<input id="objects" name="Количество объектов" type="number"  min="1">
             <p>Направление движения</p>
-            <input id="direction_1" class="direction" name="direction" type="radio" value="1">
-            <input id="direction_2" class="direction" name="direction" type="radio" value="2">
-            <input id="direction_3" class="direction" name="direction" type="radio" value="3">
+            <input id="direction_1" class="direction" name="direction" type="radio" value="0">
+            <input id="direction_2" class="direction" name="direction" type="radio" value="1">
+            <input id="direction_3" class="direction" name="direction" type="radio" value="2">
             <input type="button" value="Установить" onclick="setData()">
 		</form>
 	</div>

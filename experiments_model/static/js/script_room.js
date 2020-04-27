@@ -76,11 +76,30 @@ const setData = function () {
  	timer_online.style.display="block";
     timer_certain.style.display="block";
     configuration.style.display="none";
- 	makeObjects(number_circles);
+
+    let html = `<p>Количество объектов - <span style="color:red">${balls_quantity}</span>;&nbsp;&nbsp;</p> <p> Количество датчиков -<span style="color:red"> ${number_circles}</span>.</p>`;
+    document.querySelector('#experiment_data').insertAdjacentHTML("afterBegin", html);
+
+    let rad = document.getElementsByName('direction');
+    makeObjects(number_circles);
  	CreateBalls(balls_quantity);
-    //setTimeout('Run_left_right()', speed);
-    //setTimeout('Run_right_left()', speed)
-    setTimeout('Run_left_and_right()', speed)
+    for (let i=0; i<rad.length; i++) {
+        if (rad[i].checked) {
+            switch(i) {
+                case 0:
+                    setTimeout('Run_left_right()', speed);
+                    break;
+                case 1:
+                    setTimeout('Run_left_and_right()', speed);
+                    break;
+                case 2:
+                    setTimeout('Run_random()', speed);
+                    break;
+                default:
+                    alert('Ошибка!')
+            }
+        }
+    }
 };
 
 
@@ -96,11 +115,8 @@ function CreateBalls(balls_quantity){
 	for (i=0; i<balls_quantity; i++){
 		field.insertAdjacentHTML('afterbegin', `<div id="ball-${i}" class="ball"</div>`);
 		//yp[i] =  400/balls_quantity*i;
-        yp[i] = getRandomInt(5, 395);
-
+        yp[i] = getRandomInt(5, 400);
 		xp[i] =  -400 + getRandomInt(5, 100);
-
-		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
 }
 
@@ -211,6 +227,64 @@ function Run_left_and_right(){
 	balls_movement_2 = setTimeout('Run_left_and_right()', speed);
 }
 
+function Run_random(){
+	for (i = 0; i<balls_quantity; i++){
+	    current_ball = document.getElementById(`ball-${i}`);
+	  	step_y = 4;
+
+	  	if (i % 2 === 0) {
+		    xp[i] += step_y;
+		    yp[i] += step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = -350 + getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = -100 + getRandomInt(5, 100);
+            }
+        } else if (i % 3 === 0) {
+		    xp[i] -= step_y;
+		    yp[i] -= step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = 800 - getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = 400 - getRandomInt(5, 100);
+            }
+        }
+	  	if (i % 4 === 0) {
+		    xp[i] -= step_y*2;
+		    yp[i] += step_y*2;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = 700 - getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = 400 - getRandomInt(5, 100);
+            }
+        }
+
+
+
+	    current_ball.style.left = xp[i] + "px";
+	  	current_ball.style.top = yp[i] + "px";
+
+        Pos__front(current_ball, i);
+        if ((xp[i] < 0) || ( xp[i] > 600) || (yp[i] > 400) || (yp[i] < 0)) {
+            isActiveFiedls[i] = 0
+        } else {
+            isActiveFiedls[i] = 1
+        }
+	}
+	sum_balls = 0;
+	isActiveFiedls.forEach(function(item) {
+	    sum_balls = sum_balls + item
+    });
+    if (sum_balls>0) {
+        field.style.background="#FFFFA1"
+    } else {
+        field.style.background="#FFFFFF"
+    }
+	balls_movement_2 = setTimeout('Run_random()', speed);
+}
 
 function Pos__front(current_ball, i) {
     let posX = current_ball.offsetLeft;  // верхний отступ эл-та от родителя
@@ -382,7 +456,8 @@ addEventListener("keydown", function(event) {
       	balls_movement = false;
 	} else if ((event.keyCode === 32)&&(balls_movement === false)){
     	balls_movement = true;
-		setTimeout('Run_left_right()', speed);
+		//setTimeout('Run_left_right()', speed);
+        setTimeout('Run_random()', speed);
     	//setTimeout('Run()', speed);
 	}
   });

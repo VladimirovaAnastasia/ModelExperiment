@@ -120,3 +120,32 @@
 		justify-content: center;
 		align-items: center;
 	}
+
+	input[type=radio] {
+		position: relative;
+		left: -58px;
+	}
+
+	.direction::after {
+		position: relative;
+    	left: 80px;
+		top: -2px;
+	}
+
+	#direction_1::after {
+		content: '\2192'
+	}
+
+	#direction_2::after {
+		content: '\2194'
+	}
+
+	#direction_3::after {
+		content: 'random'
+	}
+
+	#experiment_data {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
