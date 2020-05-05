@@ -8,11 +8,23 @@ let detector;
 let balls_in;
 let sum_detection;
 
+let target_sectors = []
+
+let width_of_field = 650;
+
+let rad = document.getElementsByName('direction');
+
+let for_delete = [];
+
 var  balls_movement_1;
 var  balls_movement_2;
-var balls_movement = true;
+var balls_movement = false;
+detection_area = document.getElementById("detection-area");
 field = document.getElementById("field");
+
 field.style.display="none";
+field.style.width = width_of_field + 'px';
+detection_area.style.width = width_of_field + 'px';
 var isActive; // индикатор попадания объекта в зону детектирования датчика
 let balls_quantity;
 let number_circles;
@@ -36,27 +48,137 @@ var obgMain = 400;
 
 var sectors = [];
 
-
+let radius = 66;
 
 //var x_variable = [ 25, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575 ];
 //var y_variable = [ 25, 75, 125, 175, 225, 275, 325, 375 ];
 var x_variable = [ 52, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 550];
 var y_variable = [  52, 75, 125, 175, 225, 275, 325, 350];
-
+let detectors_x = 0;
+let detectors_y = 0;
 makeObjects = function (number_circles) {
-    for (let i = 0; i < number_circles; i++) {
+    //let actually_detectors = number_circles - for_delete.length;
+    let actually_detectors = 0;
+    for (let i = 0; i < Number(number_circles); i++) {
+        let x;
+        let y;
 
-        let x = x_variable[Math.floor(Math.random() * x_variable.length)];
-        let y = y_variable[Math.floor(Math.random() * y_variable.length)];
-        let radius = 53;
-        makeCircle(x, y, radius, i);
-        sectors.push({
-            xo: x,
-            yo: y,
-            r: radius,
-            isActive: 0,
-            balls: []
-        })
+
+        //x = x_variable[Math.floor(Math.random() * x_variable.length)];
+        //y = y_variable[Math.floor(Math.random() * y_variable.length)];
+        /*if ((radius + 2*detectors_x*radius) < width_of_field) {
+            if ((detectors_y%2) === 1) {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x = radius + 2*detectors_x*radius;
+                }
+            } else {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x =  2*radius + 2*detectors_x*radius;
+                }
+
+            }
+            console.log(!!!!(detectors_y), i)
+            y = radius + 2*detectors_y*radius - !!!!(detectors_y)*radius/4;
+            detectors_x++;
+        } else {
+            detectors_x = 0;
+            detectors_y++;
+            if ((detectors_y%2) === 1) {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x = radius + 2*detectors_x*radius;
+                }
+            } else {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x =  2*radius + 2*detectors_x*radius;
+                }
+
+            }
+            y = radius +  2*detectors_y*radius - !!!!(detectors_y)*radius/4;
+            detectors_x++;
+        }*/
+
+
+        let delete_circles = 0;
+
+
+        for (let n=0; n<for_delete.length; n++) {
+            if (for_delete[n] === i) {
+                delete_circles++;
+            }
+            console.log('i','for_delete[n]','delete_circles');
+            console.log(i,for_delete[n],delete_circles)
+        }
+
+
+
+
+
+
+            //все друг с другом
+            if (i === 15) {
+                 detectors_x = 0;
+                 detectors_y = 0;
+            }
+
+
+            if (i < 15) {
+                if ((radius + 2*detectors_x*radius) < width_of_field) {
+                    if ((radius + 2*detectors_x*radius) > width_of_field - radius + 10) {
+                        x =  2*detectors_x*radius;
+                    } else {
+                        x = radius + 2*detectors_x*radius;
+                    }
+                    y = radius + 2*detectors_y*radius;
+                    detectors_x++;
+                } else {
+                    detectors_x = 0;
+                    detectors_y++;
+                    x = radius + 2*detectors_x*radius;
+                    y = radius + 2*detectors_y*radius;
+                    detectors_x++;
+                }
+            } else {
+                if ((2*radius + 2*detectors_x*radius) < width_of_field) {
+                    if ((radius + 2*detectors_x*radius) > width_of_field - radius + 10) {
+                        x =  2*detectors_x*radius;
+                    } else {
+                        x = 2*radius + 2*detectors_x*radius;
+                    }
+                    y = 2*radius + 2*detectors_y*radius;
+                    detectors_x++;
+                } else {
+                    detectors_x = 0;
+                    detectors_y++;
+                    x = 2*radius + 2*detectors_x*radius;
+                    y = 2*radius + 2*detectors_y*radius;
+                    detectors_x++;
+                }
+            }
+
+
+
+
+        if (delete_circles===0) {
+            makeCircle(x, y, radius, actually_detectors);
+            sectors.push({
+                xo: x,
+                yo: y,
+                r: radius,
+                isActive: 0,
+                balls: []
+            });
+            actually_detectors ++;
+        }
+
+
     }
 };
 
@@ -67,6 +189,10 @@ let configuration = document.getElementById("configuration");
 timer_online.style.display="none";
 timer_certain.style.display="none";
 configuration.style.display="flex";
+
+
+
+
 
 
 const setData = function () {
@@ -80,33 +206,51 @@ const setData = function () {
     let html = `<p>Количество объектов - <span style="color:red">${balls_quantity}</span>;&nbsp;&nbsp;</p> <p> Количество датчиков -<span style="color:red"> ${number_circles}</span>.</p>`;
     document.querySelector('#experiment_data').insertAdjacentHTML("afterBegin", html);
 
-    let rad = document.getElementsByName('direction');
     makeObjects(number_circles);
  	CreateBalls(balls_quantity);
-    for (let i=0; i<rad.length; i++) {
-        if (rad[i].checked) {
-            switch(i) {
-                case 0:
-                    setTimeout('Run_left_right()', speed);
-                    break;
-                case 1:
-                    setTimeout('Run_left_and_right()', speed);
-                    break;
-                case 2:
-                    setTimeout('Run_random()', speed);
-                    break;
-                default:
-                    alert('Ошибка!')
-            }
-        }
+
+ 	for (let b=0; b<number_circles; b++) {
+        target_sectors.push(1)
     }
+
+ 	deleteDetectors();
+
 };
 
 
+
+function deleteDetectors () {
+    let detector_circles = document.querySelectorAll('.detector-circle');
+    for (let o=0; o<detector_circles.length; o++) {
+
+        detector_circles[o].onclick = function() {
+            target_sectors_counter = 0;
+            for (let c=0; c<target_sectors.length; c++) {
+                if (target_sectors[c] === 0) {
+                    target_sectors_counter++;
+                }
+                if ((c-target_sectors_counter) === o) {
+                    target_sectors[c] = 0;
+                    for_delete.push(c);
+                }
+            }
+            //console.log('number_circles-o-1', number_circles-o-1 + for_delete.length, o)
+            console.log(for_delete);
+            sectors = [];
+            g = document.getElementById('g');
+            g.innerHTML = '';
+            detectors_x = 0;
+            detectors_y = 0;
+            makeObjects(Number(number_circles));
+            deleteDetectors()
+        }
+    }
+}
+
 function makeCircle(xo, yo, r, j) {
-    var circle = `<svg><circle id="circle-${j}" r="${r}" cx="${xo}" cy="${yo}" fill="white" stroke="#4793bf"/></svg>`;
+    var circle = `<svg class="detector-circle"><circle  id="circle-${j}" r="${r}" cx="${xo}" cy="${yo}" fill="white" stroke="#4793bf"/></svg>`;
     var g = document.getElementById('g');
-    g.insertAdjacentHTML('afterBegin', circle);
+    g.insertAdjacentHTML('beforeEnd', circle);
 }
 
 
@@ -143,7 +287,7 @@ function Run_left_right(){
 	  	}
 	    current_ball.style.left = xp[i] + "px";
         Pos__front(current_ball, i);
-        if ((xp[i] < 0) || ( xp[i] > 600)) {
+        if ((xp[i] < 0) || ( xp[i] > width_of_field)) {
             isActiveFiedls[i] = 0
         } else {
             isActiveFiedls[i] = 1
@@ -172,7 +316,7 @@ function Run_right_left(){
 	  	}
 	    current_ball.style.left = xp[i] + "px";
         Pos__front(current_ball, i);
-        if ((xp[i] < 0) || ( xp[i] > 600)) {
+        if ((xp[i] < 0) || ( xp[i] > width_of_field)) {
             isActiveFiedls[i] = 0
         } else {
             isActiveFiedls[i] = 1
@@ -210,7 +354,7 @@ function Run_left_and_right(){
 
 	    current_ball.style.left = xp[i] + "px";
         Pos__front(current_ball, i);
-        if ((xp[i] < 0) || ( xp[i] > 600)) {
+        if ((xp[i] < 0) || ( xp[i] > width_of_field)) {
             isActiveFiedls[i] = 0
         } else {
             isActiveFiedls[i] = 1
@@ -269,7 +413,7 @@ function Run_random(){
 	  	current_ball.style.top = yp[i] + "px";
 
         Pos__front(current_ball, i);
-        if ((xp[i] < 0) || ( xp[i] > 600) || (yp[i] > 400) || (yp[i] < 0)) {
+        if ((xp[i] < 0) || ( xp[i] > width_of_field) || (yp[i] > 400) || (yp[i] < 0)) {
             isActiveFiedls[i] = 0
         } else {
             isActiveFiedls[i] = 1
@@ -299,26 +443,41 @@ function Detection__front(posX, posY, i) {
         let id = 'circle-' + h;
         let current_detector = document.getElementById(id);
 
-        if (((posY - sectors[h].yo) * (posY - sectors[h].yo) + (posX - sectors[h].xo) * (posX - sectors[h].xo)) <= sectors[h].r * sectors[h].r) {
+        // по координате
+        /*if (((posY - sectors[h].yo) * (posY - sectors[h].yo) + (posX - sectors[h].xo) * (posX - sectors[h].xo)) <= sectors[h].r * sectors[h].r) {
             sectors[h].balls[i] = 1
         } else {
             sectors[h].balls[i] = 0
-        }
+        }*/
 
-        let sum = 0;
-        sectors[h].balls.forEach(function(item) {
-            sum = sum + item;
-        });
-
-        if (sum>0) {
-            current_detector.setAttribute('stroke', "#d6313c");
-            current_detector.setAttribute('fill', "#d6313c");
-            sectors[h].isActive = 1
+        if (current_detector === null) {
+            console.log(current_detector, 1)
         } else {
-            current_detector.setAttribute('stroke', "#4793bf");
-            current_detector.setAttribute('fill', "#4793bf");
-            sectors[h].isActive = 0
+
+            if (Math.sqrt(((posY - sectors[h].yo) * (posY - sectors[h].yo) + (posX - sectors[h].xo) * (posX - sectors[h].xo))) <= (sectors[h].r + 25)) {
+                sectors[h].balls[i] = 1
+            } else {
+                sectors[h].balls[i] = 0
+            }
+
+
+            let sum = 0;
+            sectors[h].balls.forEach(function(item) {
+                sum = sum + item;
+            });
+
+            if (sum>0) {
+                current_detector.setAttribute('stroke', "#d6313c");
+                current_detector.setAttribute('fill', "#d6313c");
+                sectors[h].isActive = 1
+            } else {
+                current_detector.setAttribute('stroke', "#4793bf");
+                current_detector.setAttribute('fill', "#4793bf");
+                sectors[h].isActive = 0
+            }
         }
+
+
 
     }
 
@@ -331,7 +490,7 @@ function addData(time, delay, balls, balls_field, detectors, detectors_field, de
     current_ball = document.getElementById('ball-1');
     let top_h;
     let left_h;
-        if (   (+/\d+/.exec(current_ball.style.left)) > 0 && (+/\d+/.exec(current_ball.style.left)) < 600) {
+        if (   (+/\d+/.exec(current_ball.style.left)) > 0 && (+/\d+/.exec(current_ball.style.left)) < width_of_field) {
 
                 top_h= Number(+/\d+/.exec(current_ball.style.top));
                 left_h = Number(+/\d+/.exec(current_ball.style.left));
@@ -458,7 +617,25 @@ addEventListener("keydown", function(event) {
 	} else if ((event.keyCode === 32)&&(balls_movement === false)){
     	balls_movement = true;
 		//setTimeout('Run_left_right()', speed);
-        setTimeout('Run_random()', speed);
+        //setTimeout('Run_random()', speed);
     	//setTimeout('Run()', speed);
+
+        for (let i=0; i<rad.length; i++) {
+            if (rad[i].checked) {
+                switch(i) {
+                    case 0:
+                        setTimeout('Run_left_right()', speed);
+                        break;
+                    case 1:
+                        setTimeout('Run_left_and_right()', speed);
+                        break;
+                    case 2:
+                        setTimeout('Run_random()', speed);
+                        break;
+                    default:
+                        alert('Ошибка!')
+                }
+            }
+        }
 	}
   });

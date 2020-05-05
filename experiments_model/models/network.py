@@ -67,6 +67,7 @@ def calculation_hidden_layer_delta(delta_layer_delta, w_l, z_l):
 
 def predict_y(Weights, betta, X, Y, k):
     error_func = []
+    accurary = 0
     m = len(Y)
     true_pos = 0
     true_neg = 0
@@ -77,10 +78,31 @@ def predict_y(Weights, betta, X, Y, k):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
         print(h[3])
         print(Y[j, 0])
-        if (Y[j, 0] - h[3] > 0.5):
+        if h[3] >= 0.5:
             answer = 1
         else:
             answer = 0
+
+        if Y[j, 0] == 1 and answer == 1:
+            true_pos = true_pos + 1
+        if Y[j, 0] == 1 and answer == 0:
+            false_neg = false_neg + 1
+        if Y[j, 0] == 0 and answer == 1:
+            false_pos = false_pos + 1
+        if Y[j, 0] == 0 and answer == 0:
+            true_neg = true_neg + 1
+    print(true_pos, false_neg, false_pos,  true_neg)
+    accurary = (true_pos+true_neg)/m
+    print('accurary', accurary)
+    #mistake_1 = (false_pos) / (true_neg + false_pos)
+    #print('mistake_1', mistake_1)
+    #mistake_2 = (false_neg) / (true_pos + false_neg)
+    #print('mistake_2', mistake_2)
+    #precision = (true_pos) / (true_pos + false_pos)
+    #print('precision', precision)
+    #recall = (true_pos + true_neg) / (true_pos + false_neg)
+    #print('recall', recall)
+
         # error = pow((Y[j, 0] - h[3]), 2)
         # error_func.append(error)
 
@@ -149,13 +171,10 @@ def getPrediction(x, y):
     # не нормируем данные
     X = x
 
-
     Y = y
 
-
-    trainData = len(x) * 9 // 10
+    trainData = len(x) * 8 // 10
     # print(trainData)
-    testData = len(x) - trainData
     # print(testData)
     X_train = np.vstack((X[0:trainData, 0:enter]))
     Y_train = np.vstack((Y[0:trainData, 0]))
@@ -207,19 +226,9 @@ def getPrediction(x, y):
         k = s / len(Y_train)
         if counter == 1:
             print(k)
-        if counter == 25:
-            print(k)
         if counter == 50:
             print(k)
-        if counter == 75:
-            print(k)
         if counter == 100:
-            print(k)
-        if counter == 125:
-            print(k)
-        if counter == 150:
-            print(k)
-        if counter == 200:
             print(k)
         if counter == 200:
             print(k)
