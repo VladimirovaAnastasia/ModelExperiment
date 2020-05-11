@@ -113,6 +113,7 @@ def predict_y(Weights, betta, X, Y, k):
 
 
 def getPrediction(x, y):
+
     counter = 0
     alpha = 0.01
     counter = 0
@@ -120,12 +121,12 @@ def getPrediction(x, y):
     k_func = []
     # входной слой
     enter = len(x[0])
-    print(enter, 'ВХОД')
+    #print(enter, 'ВХОД')
     # количество нейронов в выходном слое
     exit = 1
     # количество нейронов в скрытом слое
     hidden_layout = (enter + exit) // 2
-    print(hidden_layout, 'СКРЫТЫЙ')
+    #print(hidden_layout, 'СКРЫТЫЙ')
     # Количество эпох обучения
     epoch = 500
     structure = [enter, hidden_layout, exit]
@@ -148,30 +149,31 @@ def getPrediction(x, y):
     # нормируем данные методом минимакс в [0;1]
     max_x = x.max(axis=0)
     min_x = x.min(axis=0)
-    print(max_x)
-    print(min_x)
+    #print(max_x)
+    #print(min_x)
 
     dif = max_x - min_x
 
-    print(dif)
+    #print(dif)
 
     p = 0
     for item in dif:
-        print(item)
-        print(max_x[p])
+        #print(item)
+        #print(max_x[p])
         if (item == 0):
-            print(max_x[p], 'макс в столбце')
+            #print(max_x[p], 'макс в столбце')
             dif[p] = max_x[p]
             p = p + 1
-    print(dif)
+    #print(dif)
 
     X = (x - min_x) / dif
-    print(X, 'X')
+    #print(X, 'X')
 
     # не нормируем данные
     X = x
 
     Y = y
+    print(len(Y), 'Y aaaaa')
 
     trainData = len(x) * 8 // 10
     # print(trainData)
@@ -237,7 +239,7 @@ def getPrediction(x, y):
         if counter == 400:
             print(k)
         if counter == 499:
-            print('Итоговая погрешность', k)
+            print(k)
         if counter == 600:
             print(600)
         k_func.append(k)

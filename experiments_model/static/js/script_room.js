@@ -1,4 +1,4 @@
-
+let lol = 0;
 
 time = 0; //отсчет эксперимента
 X = 0;
@@ -36,7 +36,7 @@ balls_in_field = [];
 speed= 30; // скорость
 T = 0.3; // задержка датчика от 0.3 минуты до 5 минут
 systemTime = 100; // частота записи данных состояния системы
-experimentTime = 0; // текущее время эксперимента
+let experimentTime = 0; // текущее время эксперимента
 data = []; // данные эксперимента
 sensorDelay = 100; // задержка опроса датчика в мс
 var IKsensor;
@@ -113,8 +113,6 @@ makeObjects = function (number_circles) {
             if (for_delete[n] === i) {
                 delete_circles++;
             }
-            console.log('i','for_delete[n]','delete_circles');
-            console.log(i,for_delete[n],delete_circles)
         }
 
 
@@ -451,7 +449,6 @@ function Detection__front(posX, posY, i) {
         }*/
 
         if (current_detector === null) {
-            console.log(current_detector, 1)
         } else {
 
             if (Math.sqrt(((posY - sectors[h].yo) * (posY - sectors[h].yo) + (posX - sectors[h].xo) * (posX - sectors[h].xo))) <= (sectors[h].r + 25)) {
@@ -486,7 +483,6 @@ function Detection__front(posX, posY, i) {
 
 // Формирование результатов экспериментов
 function addData(time, delay, balls, balls_field, detectors, detectors_field, detection, actually) {
-    console.log(time, delay, balls, balls_field, detectors, detectors_field, detection, actually);
     current_ball = document.getElementById('ball-1');
     let top_h;
     let left_h;
@@ -521,7 +517,7 @@ function addData(time, delay, balls, balls_field, detectors, detectors_field, de
             actually: actually,
         };
 
-  data.push(data_exp_1);
+    data.push(data_exp_1);
 
 
 }
@@ -546,8 +542,10 @@ var startTimer = function(){
 
 
 		addData(experimentTime, sensorDelay, balls_quantity, sum_balls, number_circles, sum_detection, detector, balls_in );
-        console.log(experimentTime, sensorDelay, balls_quantity, sum_balls, number_circles, sum_detection, detector, balls_in )
+        lol++;
+        console.log(lol)
 		experimentTime = experimentTime + systemTime;
+        console.log(experimentTime)
 	}, systemTime);
 	var intervalID = setInterval(function(){
 		k = k+1;
@@ -566,6 +564,8 @@ var stopTimer = function(){
 	let json = JSON.stringify(data);
 	let experimentData = document.getElementById("id_data_of_experiment");
 	experimentData.value = json;
+
+	console.log(data.length, 'ДЛИНА ДАННЫХ')
 
 	document.querySelector('.send').click();
 	sendData(data);
