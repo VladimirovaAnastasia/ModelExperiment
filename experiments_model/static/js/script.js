@@ -223,7 +223,6 @@ function currentDistance (obgMain, objUser, fPlot, fPlot2, sector) {
 			}
 		}
 		isActive = 1;
-
 		fPlot.setAttribute('stroke', "#d6313c");
 		fPlot2.setAttribute('stroke', "#d6313c");
 		sector.setAttribute('stroke', "#d6313c");

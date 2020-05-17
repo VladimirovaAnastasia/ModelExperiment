@@ -1,4 +1,3 @@
-let lol = 0;
 
 time = 0; //отсчет эксперимента
 X = 0;
@@ -8,7 +7,7 @@ let detector;
 let balls_in;
 let sum_detection;
 
-let target_sectors = []
+let target_sectors = [];
 
 let width_of_field = 650;
 
@@ -16,9 +15,10 @@ let rad = document.getElementsByName('direction');
 
 let for_delete = [];
 
-var  balls_movement_1;
-var  balls_movement_2;
-var balls_movement = false;
+let  balls_movement_1;
+let  balls_movement_2;
+let balls_movement = false;
+
 detection_area = document.getElementById("detection-area");
 field = document.getElementById("field");
 
@@ -39,19 +39,17 @@ systemTime = 100; // частота записи данных состояния
 let experimentTime = 0; // текущее время эксперимента
 data = []; // данные эксперимента
 sensorDelay = 100; // задержка опроса датчика в мс
-var IKsensor;
-var currentExperiment;
-var stopCount ;
+let IKsensor;
+let currentExperiment;
+let stopCount ;
 k = 0; // счетчик таймера
-var obgMain = 400;
+let obgMain = 400;
 
 
-var sectors = [];
+let sectors = [];
 
 let radius = 66;
 
-//var x_variable = [ 25, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575 ];
-//var y_variable = [ 25, 75, 125, 175, 225, 275, 325, 375 ];
 var x_variable = [ 52, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 550];
 var y_variable = [  52, 75, 125, 175, 225, 275, 325, 350];
 let detectors_x = 0;
@@ -62,49 +60,6 @@ makeObjects = function (number_circles) {
     for (let i = 0; i < Number(number_circles); i++) {
         let x;
         let y;
-
-
-        //x = x_variable[Math.floor(Math.random() * x_variable.length)];
-        //y = y_variable[Math.floor(Math.random() * y_variable.length)];
-        /*if ((radius + 2*detectors_x*radius) < width_of_field) {
-            if ((detectors_y%2) === 1) {
-                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
-                    x =  2*detectors_x*radius;
-                } else {
-                    x = radius + 2*detectors_x*radius;
-                }
-            } else {
-                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
-                    x =  2*detectors_x*radius;
-                } else {
-                    x =  2*radius + 2*detectors_x*radius;
-                }
-
-            }
-            console.log(!!!!(detectors_y), i)
-            y = radius + 2*detectors_y*radius - !!!!(detectors_y)*radius/4;
-            detectors_x++;
-        } else {
-            detectors_x = 0;
-            detectors_y++;
-            if ((detectors_y%2) === 1) {
-                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
-                    x =  2*detectors_x*radius;
-                } else {
-                    x = radius + 2*detectors_x*radius;
-                }
-            } else {
-                if ((radius + 2*detectors_x*radius) > width_of_field - radius) {
-                    x =  2*detectors_x*radius;
-                } else {
-                    x =  2*radius + 2*detectors_x*radius;
-                }
-
-            }
-            y = radius +  2*detectors_y*radius - !!!!(detectors_y)*radius/4;
-            detectors_x++;
-        }*/
-
 
         let delete_circles = 0;
 
@@ -239,6 +194,9 @@ function deleteDetectors () {
             g.innerHTML = '';
             detectors_x = 0;
             detectors_y = 0;
+            let html = `<p>Количество объектов - <span style="color:red">${balls_quantity}</span>;&nbsp;&nbsp;</p> <p> Количество датчиков -<span style="color:red"> ${number_circles-for_delete.length}</span>.</p>`;
+            document.querySelector('#experiment_data').innerHTML='';
+            document.querySelector('#experiment_data').insertAdjacentHTML("afterBegin", html);
             makeObjects(Number(number_circles));
             deleteDetectors()
         }
@@ -542,8 +500,6 @@ var startTimer = function(){
 
 
 		addData(experimentTime, sensorDelay, balls_quantity, sum_balls, number_circles, sum_detection, detector, balls_in );
-        lol++;
-        console.log(lol)
 		experimentTime = experimentTime + systemTime;
         console.log(experimentTime)
 	}, systemTime);

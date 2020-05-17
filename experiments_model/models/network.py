@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 global coef
 
-
 def f(x):
     # return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
     return 1 / (1 + np.exp(-x))
@@ -76,8 +75,8 @@ def predict_y(Weights, betta, X, Y, k):
     answer = 0
     for j in range(m):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
-        print(h[3])
-        print(Y[j, 0])
+        #print(h[3])
+        #print(Y[j, 0])
         if h[3] >= 0.5:
             answer = 1
         else:
@@ -91,9 +90,17 @@ def predict_y(Weights, betta, X, Y, k):
             false_pos = false_pos + 1
         if Y[j, 0] == 0 and answer == 0:
             true_neg = true_neg + 1
-    print(true_pos, false_neg, false_pos,  true_neg)
+
+
+
+    print(true_pos, true_neg, false_pos, false_neg)
     accurary = (true_pos+true_neg)/m
     print('accurary', accurary)
+
+    return accurary
+
+
+
     #mistake_1 = (false_pos) / (true_neg + false_pos)
     #print('mistake_1', mistake_1)
     #mistake_2 = (false_neg) / (true_pos + false_neg)
@@ -118,8 +125,10 @@ def getPrediction(x, y):
     alpha = 0.01
     counter = 0
     delta = {}
+    mist_func = []
     k_func = []
     # входной слой
+
     enter = len(x[0])
     #print(enter, 'ВХОД')
     # количество нейронов в выходном слое
@@ -128,7 +137,7 @@ def getPrediction(x, y):
     hidden_layout = (enter + exit) // 2
     #print(hidden_layout, 'СКРЫТЫЙ')
     # Количество эпох обучения
-    epoch = 500
+    epoch = 600
     structure = [enter, hidden_layout, exit]
 
     l = 0
@@ -175,7 +184,7 @@ def getPrediction(x, y):
     Y = y
     print(len(Y), 'Y aaaaa')
 
-    trainData = len(x) * 8 // 10
+    trainData = len(x) * 80 // 100
     # print(trainData)
     # print(testData)
     X_train = np.vstack((X[0:trainData, 0:enter]))
@@ -193,14 +202,13 @@ def getPrediction(x, y):
         W_delta, b_delta = init_delta_values(structure)
         k = 0
         i = 0
+        mist = 0
         for i in range(len(Y_train)):
             delta = {}
             h, z = calculation_of_sum_and_F_activation(X_train[i, :], W, b)
             delta[3] = calculation_layer_delta(Y_train[i, 0], h[3], z[3])
             # k += pow((Y_train[i, 0] - h[3]), 2)
-            k = k + (- np.multiply(Y_train[i, 0], np.log(h[3] + 0.0000000001)) - np.multiply(1.0 - Y_train[i, 0],
-                                                                                             np.log(1.0 - h[
-                                                                                                 3] + + 0.0000000001))).sum()
+            k = k + (- np.multiply(Y_train[i, 0], np.log(h[3] + 0.0000000001)) - np.multiply(1.0 - Y_train[i, 0], np.log(1.0 - h[3] + + 0.0000000001))).sum()
             delta[2] = calculation_hidden_layer_delta(delta[3], W[2], z[2])
             # delta[2] = np.multiply(delta[3] * W[2][:, 0: -1], np.multiply(h[3], 1.0 - h[3]))
             W_delta[2] = np.dot(delta[3][:, np.newaxis], np.transpose(h[2][:, np.newaxis]))
@@ -226,6 +234,14 @@ def getPrediction(x, y):
         # k = math.sqrt(s) / len(Y_train)
         # k = math.sqrt((s) / (2 * (len(Y_train - 1))))
         k = s / len(Y_train)
+
+        mist = 0
+
+        for j in range(len(Y_test)):
+            gg, ll = calculation_of_sum_and_F_activation(X_test[j, :], W, b)
+            mist = mist + (- np.multiply(Y_test[j, 0], np.log(gg[3] + 0.0000000001)) - np.multiply(1.0 - Y_test[j, 0], np.log(1.0 - gg[3] + 0.0000000001))).sum()
+        mist = mist / len(Y_test)
+
         if counter == 1:
             print(k)
         if counter == 50:
@@ -241,14 +257,32 @@ def getPrediction(x, y):
         if counter == 499:
             print(k)
         if counter == 600:
-            print(600)
+            print(k)
+        if counter == 700:
+            print(k)
+        if counter == 800:
+            print(k)
+        if counter == 900:
+            print(k)
+        if counter == 999:
+            print(k)
+        if counter == 1500:
+            print(k)
+        if counter == 1990:
+            print(k)
         k_func.append(k)
+        mist_func.append(mist)
         counter += 1
 
     plt.plot(k_func)
     plt.ylabel('Погрешность')
     plt.xlabel('Количество итераций')
     plt.show()
+
+    #plt.plot(mist_func)
+    #plt.ylabel('Погрешность')
+    #plt.xlabel('Количество итераций')
+    #plt.show()
 
     m = (np.sqrt(np.sum(np.square(x), axis=1)))
 
