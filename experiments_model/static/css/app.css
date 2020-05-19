@@ -105,12 +105,12 @@
 	}
 
 	.timers__button:hover {
-		background-color: #4CAF50; /* Green */
+		background-color: #4CAF50;
    	 	color: white;
 	}
 
 	.timers__button--active {
-		background-color: #4CAF50; /* Green */
+		background-color: #4CAF50;
    	 	color: white;
 	}
 

@@ -22,22 +22,18 @@
 			</table>
 			<input type="submit" value="Send" class="send" >
 		</form>
-		<!--<div class="coordinates">
-			<p class="coordinates__head">Координаты объекта:  </p>
-			<p class="coordinates-data" id="coordinates">0</p>
-			<p class="coordinates-" > см</p>-->
         <div id="experiment_data">
         </div>
         <div class="timers">
             <p>Задать время эксперимента</p>
-            <div id="all_time">
+            <div id="all-time">
                 <button class="timers__button" id="one-min">1 минута</button>
                 <button class="timers__button" id="two-min">2 минуты</button>
                 <button class="timers__button" id="three-min">3 минуты</button>
                 <button class="timers__button" id="five-min">5 минут</button>
                 <button class="timers__button" id="n-min">Другое</button>
             </div>
-            <div id="custom_time">
+            <div id="custom-time">
                 <button class="timers__button" onclick="startTimer()">Начать эксперимент</button>
 		        <button class="timers__button" onclick="stopTimer()">Остановить таймер</button>
             </div>
@@ -47,8 +43,8 @@
 
 	<div class="block" id="timer_certain">
 		<div class="experiment-field" id="field">
-			<svg class="detection-area" id="detection-area" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" >
-				<g id="g" transform="scale(1)">
+			<svg class="detection-area" id="detection-area" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400">
+				<g id="objects-group" transform="scale(1)">
 				</g>
 			 </svg>
 
@@ -56,13 +52,6 @@
 	</div>
 	<div class="block" id="configuration">
 		<form class="input-form">
-		  	<!--<label for="radius">Радиус обнаружения </label>
-		  	<input id="radius" name="radius" type="number" step="any" min="0">
-			<label for="xo">Начальное положение по оси ОХ </label>
-			<input id="xo" name="xo" type="number" step="any" min="0">
-			<label for="yo">Начальное положение по оси ОY </label>
-			<input id="yo" name="yo" type="number" step="any" min="0">
-		  	<input type="button" value="Заказать" onclick="setData()">-->
             <label for="detectors">Количество датчиков</label>
 			<input id="detectors" name="Количество датчиков" type="number"  min="1">
             <label for="objects">Количество объектов</label>
@@ -78,5 +67,5 @@
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="../static/js/script_room.js"></script>
+<script src="../static/js/script.js"></script>
 </html>

@@ -1,19 +1,20 @@
 import numpy as np
-import math
 import numpy.random as r
 import matplotlib.pyplot as plt
 
-global coef
 
 def f(x):
+    # th
     # return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+    # sigmoid
     return 1 / (1 + np.exp(-x))
 
 
 def derivative_f(x):
-    fx = f(x)
-    return fx * (1 - fx)
+    # th
     # return 4 / ((np.exp(x) + np.exp(-x)) * (np.exp(x) + np.exp(-x)))
+    # sigmoid
+    return f(x) * (1 - f(x))
 
 
 def setup_and_init_weights(structure):
@@ -47,36 +48,31 @@ def calculation_of_sum_and_F_activation(x, W, b):
     return h, z
 
 
-# h - функция активации
-
 def calculation_layer_delta(y, h_out, z_out):
-    # для логистической функции
-    return (h_out - y)
-    # для mse
+    # log loss
+    return h_out - y
+    # mse
     # return (h_out - y) * derivative_f(z_out)
 
 
 def calculation_layer_difference(y, h_out):
-    return (h_out - y)
+    return h_out - y
 
 
 def calculation_hidden_layer_delta(delta_layer_delta, w_l, z_l):
     return np.dot(np.transpose(w_l), delta_layer_delta) * derivative_f(z_l)
 
 
-def predict_y(Weights, betta, X, Y, k):
-    error_func = []
-    accurary = 0
-    m = len(Y)
+def predict_y(Weights, betta, X, Y):
+    volume_data = len(Y)
+
     true_pos = 0
     true_neg = 0
     false_pos = 0
     false_neg = 0
-    answer = 0
-    for j in range(m):
+
+    for j in range(volume_data):
         h, z = calculation_of_sum_and_F_activation(X[j, :], Weights, betta)
-        #print(h[3])
-        #print(Y[j, 0])
         if h[3] >= 0.5:
             answer = 1
         else:
@@ -91,126 +87,58 @@ def predict_y(Weights, betta, X, Y, k):
         if Y[j, 0] == 0 and answer == 0:
             true_neg = true_neg + 1
 
-
-
     print(true_pos, true_neg, false_pos, false_neg)
-    accurary = (true_pos+true_neg)/m
-    print('accurary', accurary)
-
-    return accurary
-
-
-
-    #mistake_1 = (false_pos) / (true_neg + false_pos)
-    #print('mistake_1', mistake_1)
-    #mistake_2 = (false_neg) / (true_pos + false_neg)
-    #print('mistake_2', mistake_2)
-    #precision = (true_pos) / (true_pos + false_pos)
-    #print('precision', precision)
-    #recall = (true_pos + true_neg) / (true_pos + false_neg)
-    #print('recall', recall)
-
-        # error = pow((Y[j, 0] - h[3]), 2)
-        # error_func.append(error)
-
-    # plt.plot(error_func)
-    # plt.ylabel('Погрешность обучения')
-    # plt.xlabel('Выборки')
-    # plt.show()
+    accuracy = (true_pos + true_neg) / volume_data
+    print('accuracy', accuracy)
+    return accuracy
 
 
 def getPrediction(x, y):
-
-    counter = 0
+    # step
     alpha = 0.01
-    counter = 0
-    delta = {}
-    mist_func = []
-    k_func = []
-    # входной слой
 
+    # network config
     enter = len(x[0])
-    #print(enter, 'ВХОД')
-    # количество нейронов в выходном слое
     exit = 1
-    # количество нейронов в скрытом слое
     hidden_layout = (enter + exit) // 2
-    #print(hidden_layout, 'СКРЫТЫЙ')
-    # Количество эпох обучения
-    epoch = 600
     structure = [enter, hidden_layout, exit]
 
-    l = 0
+    epoch = 600
+
+    # write to file data of experiment
+    c = 0
     file = open('text.txt', 'w')
     for index in x:
-        file.write(str(int(y[l, 0])) + ' ')
+        file.write(str(int(y[c, 0])) + ' ')
         for item in index:
             file.write(str(item) + ' ')
         file.write('\n')
-        l = l + 1
-
-    # нормируем данные  пределах [0;1]
-    coef = (np.sqrt(np.sum(np.square(x), axis=1)))
-    X_new = np.repeat(coef, enter).reshape(len(x), enter)
-    X = x / X_new
-    X[np.isnan(X)] = 0
-
-    # нормируем данные методом минимакс в [0;1]
-    max_x = x.max(axis=0)
-    min_x = x.min(axis=0)
-    #print(max_x)
-    #print(min_x)
-
-    dif = max_x - min_x
-
-    #print(dif)
-
-    p = 0
-    for item in dif:
-        #print(item)
-        #print(max_x[p])
-        if (item == 0):
-            #print(max_x[p], 'макс в столбце')
-            dif[p] = max_x[p]
-            p = p + 1
-    #print(dif)
-
-    X = (x - min_x) / dif
-    #print(X, 'X')
-
-    # не нормируем данные
-    X = x
-
-    Y = y
-    print(len(Y), 'Y aaaaa')
+        c = c + 1
 
     trainData = len(x) * 80 // 100
-    # print(trainData)
-    # print(testData)
-    X_train = np.vstack((X[0:trainData, 0:enter]))
-    Y_train = np.vstack((Y[0:trainData, 0]))
 
-    # print(trainData)
-    # print(testData)
-    X_test = np.vstack((X[trainData:len(x), 0:enter]))
-
-    Y_test = np.vstack((Y[trainData:len(x), 0]))
+    X_train = np.vstack((x[0:trainData, 0:enter]))
+    Y_train = np.vstack((y[0:trainData, 0]))
+    X_test = np.vstack((x[trainData:len(x), 0:enter]))
+    Y_test = np.vstack((y[trainData:len(x), 0]))
 
     W, b = setup_and_init_weights(structure)
 
+    counter = 0
+    loss_train_func = []
+    loss_func = []
     while counter < epoch:
         W_delta, b_delta = init_delta_values(structure)
-        k = 0
+        loss = 0
         i = 0
-        mist = 0
         for i in range(len(Y_train)):
             delta = {}
             h, z = calculation_of_sum_and_F_activation(X_train[i, :], W, b)
             delta[3] = calculation_layer_delta(Y_train[i, 0], h[3], z[3])
-            # k += pow((Y_train[i, 0] - h[3]), 2)
-            k = k + (- np.multiply(Y_train[i, 0], np.log(h[3] + 0.0000000001)) - np.multiply(1.0 - Y_train[i, 0], np.log(1.0 - h[3] + + 0.0000000001))).sum()
-            delta[2] = calculation_hidden_layer_delta(delta[3], W[2], z[2])
+            # loss += pow((Y_train[i, 0] - h[3]), 2)
+            loss = loss + (- np.multiply(Y_train[i, 0], np.log(h[3] + 0.0000000001)) - np.multiply(1.0 - Y_train[i, 0], np.log(1.0 - h[3] + 0.0000000001))).sum()
             # delta[2] = np.multiply(delta[3] * W[2][:, 0: -1], np.multiply(h[3], 1.0 - h[3]))
+            delta[2] = calculation_hidden_layer_delta(delta[3], W[2], z[2])
             W_delta[2] = np.dot(delta[3][:, np.newaxis], np.transpose(h[2][:, np.newaxis]))
             b_delta[2] = delta[3]
             W_delta[1] = np.dot(delta[2][:, np.newaxis], np.transpose(h[1][:, np.newaxis]))
@@ -221,69 +149,35 @@ def getPrediction(x, y):
             W[2] = W[2] - alpha * W_delta[2]
             b[2] = b[2] - alpha * b_delta[2]
 
-            W_delta[1] = 0
-            W_delta[2] = 0
-            b_delta[1] = 0
-            b_delta[2] = 0
+        loss = loss / len(Y_train)
 
-        s = np.sum(k)
-        n = 1
-
-        # k = math.sqrt(s / (n * (p - 1))) * X_new
-        # k = math.sqrt(s / (n * (epoch - 1)))
-        # k = math.sqrt(s) / len(Y_train)
-        # k = math.sqrt((s) / (2 * (len(Y_train - 1))))
-        k = s / len(Y_train)
-
-        mist = 0
-
+        loss_train = 0
         for j in range(len(Y_test)):
             gg, ll = calculation_of_sum_and_F_activation(X_test[j, :], W, b)
-            mist = mist + (- np.multiply(Y_test[j, 0], np.log(gg[3] + 0.0000000001)) - np.multiply(1.0 - Y_test[j, 0], np.log(1.0 - gg[3] + 0.0000000001))).sum()
-        mist = mist / len(Y_test)
+            loss_train = loss_train + (- np.multiply(Y_test[j, 0], np.log(gg[3] + 0.0000000001)) - np.multiply(1.0 - Y_test[j, 0], np.log(1.0 - gg[3] + 0.0000000001))).sum()
+        loss_train = loss_train / len(Y_test)
 
         if counter == 1:
-            print(k)
+            print(loss)
         if counter == 50:
-            print(k)
+            print(loss)
         if counter == 100:
-            print(k)
+            print(loss)
         if counter == 200:
-            print(k)
+            print(loss)
         if counter == 300:
-            print(k)
+            print(loss)
         if counter == 400:
-            print(k)
+            print(loss)
         if counter == 499:
-            print(k)
-        if counter == 600:
-            print(k)
-        if counter == 700:
-            print(k)
-        if counter == 800:
-            print(k)
-        if counter == 900:
-            print(k)
-        if counter == 999:
-            print(k)
-        if counter == 1500:
-            print(k)
-        if counter == 1990:
-            print(k)
-        k_func.append(k)
-        mist_func.append(mist)
+            print(loss)
+        loss_func.append(loss)
+        loss_train_func.append(loss_train)
         counter += 1
 
-    plt.plot(k_func)
+    plt.plot(loss_func)
     plt.ylabel('Погрешность')
     plt.xlabel('Количество итераций')
     plt.show()
 
-    #plt.plot(mist_func)
-    #plt.ylabel('Погрешность')
-    #plt.xlabel('Количество итераций')
-    #plt.show()
-
-    m = (np.sqrt(np.sum(np.square(x), axis=1)))
-
-    predict_y(W, b, X_test, Y_test, m)
+    predict_y(W, b, X_test, Y_test)

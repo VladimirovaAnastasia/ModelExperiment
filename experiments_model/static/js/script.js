@@ -1,359 +1,464 @@
 
-alpha = 80; // 90 - угол обзора датчика/2
-time = 0; //отсчет эксперимента
-nplotpoints = 300; // количество точек для построения графика
-xo = -200; //начальное положение объекта в поле
-yo = 0; //начальное положение объекта в поле
-radius = 400;// радиус обнаружения
-X = 0;
-Y = 0;
+time = 0;
+
+let sum_balls;
+let detector;
+let isBallsInField;
+let sum_detection;
+
+let step_y;
+let current_ball;
+let isActiveFiedls = [];
+
+
+let target_sectors = [];
+
+let width_of_field = 650;
+
+let rad = document.getElementsByName('direction');
+
+let sectors_for_delete = [];
 
 
 
-fPlot = document.getElementById("fplot");
-fPlot2 = document.getElementById("fplot-2");
-circle = document.getElementById("circle");
-sector = document.getElementById("sector");
-
-
-fPlota = document.getElementById("fplota");
-fPlota2 = document.getElementById("fplota-2");
-sector2 = document.getElementById("sector-2");
-xo2 = -300;
-
+detection_area = document.getElementById("detection-area");
 field = document.getElementById("field");
-var isActive; // индикатор попадания объекта в зону детектирования датчика
-no = 1;
-balls_quantity = 3
+
+field.style.display="none";
+field.style.width = width_of_field + 'px';
+detection_area.style.width = width_of_field + 'px';
+
+
+let balls_quantity;
+let number_circles;
+
 sty = [];
 yp = [];
 xp = [];
-balls_in_field = [];
-speed= 200; // скорость
-T = 0.3; // задержка датчика от 0.3 минуты до 5 минут
-systemTime = 100; // частота записи данных состояния системы
-experimentTime = 0; // текущее время эксперимента
+let sectors = [];
+
+systemTime = 100; // частота опроса датчика
+let experimentTime = 0; // текущее время эксперимента
 data = []; // данные эксперимента
-sensorDelay = 100; // задержка опроса датчика в мс
-var IKsensor;
-var currentExperiment;
-var stopCount ;
-var ikSensor;
+let currentExperiment;
+let stopCount ;
 k = 0; // счетчик таймера
-var obgMain = 400;
-var objUser = 400;
-sum = 0;
 
 
-var  balls_movement_1;
-var  balls_movement_2;
-var balls_movement = true;
-var detector_1 =[];
-var detector_2 =[];
-var detector_1_value = [];
-var detector_2_value = [];
+let radius = 66;
+let detectors_x = 0;
+let detectors_y = 0;
 
-makePlot(xo, yo, fPlot, fPlot2);
-setSector(radius, xo, yo, sector);
 
-makePlot(xo2, yo, fPlota, fPlota2);
-setSector(radius, xo2, yo, sector2);
+let timer_online = document.getElementById("timer_online");
+let timer_certain = document.getElementById("timer_certain");
+let configuration = document.getElementById("configuration");
+timer_online.style.display="none";
+timer_certain.style.display="none";
+configuration.style.display="flex";
 
-//document.getElementById(`ball`).style.top = 200 + "px";
-//setTimeout('Run(xo, yo, radius)', speed);
 
-// Получаем данные из формы о координатах датчика и радиусе обнаружения
-function setData(){
- 	dstring="";
- 	dstring2="";
- 	xo = - document.getElementById("xo").value;
- 	yo = document.getElementById("yo").value;
- 	radius = document.getElementById("radius").value;
- 	makePlot();
- 	setSector();
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
-// Считаем длину окружности
-function getL (r) {
-   return Math.PI*r/180 * (180-2*alpha)
-}
+function makeDetectors (number_circles) {
+    let actually_detectors = 0;
+    for (let i = 0; i < Number(number_circles); i++) {
+        let x;
+        let y;
+        let delete_circles = 0;
 
-// Вычисляем координаты образующих прямых сектора
-function getY (x, xo, yo) {
-	return Math.tan(degToRad(alpha))*(x+xo) + yo
-}
-function getX (y, xo, yo) {
-	return  (y - yo) / Math.tan(degToRad(alpha)) - xo
-}
-function getY2 (x, xo, yo) {
-	return -Math.tan(degToRad(alpha))*(x+xo) + yo
-}
-function getX2 (y, xo, yo) {
-	return (yo - y) / Math.tan(degToRad(alpha)) - xo
-}
+        for (let n=0; n<sectors_for_delete.length; n++) {
+            if (sectors_for_delete[n] === i) {
+                delete_circles++;
+            }
+        }
 
-// Градусы в радианы
-function degToRad (deg) {
-	return deg / 180 * Math.PI;
-}
+        if (i === 15) {
+            detectors_x = 0;
+            detectors_y = 0;
+        }
 
-// Отрисовка прямых образующих сектор
-function makePlot(xo, yo, fPlot, fPlot2 ){
- 	var dstring="M"+-xo+","+yo+" ";
- 	var dstring2="M"+-xo+","+yo+" ";
- 	//nplotpoints = Math.max(getX2(radius),getX(radius));
- 	for(t=-xo;t<getX(radius*Math.cos(degToRad(90-alpha)), xo, yo);t++){
- 		dstring=dstring+"L"+t+","+getY(t, xo, yo)+" ";
- 	}
-	for(t=getX2(radius*Math.cos(degToRad(90-alpha)), xo, yo);t<-xo;t++){
-		dstring2=dstring2+"L"+t+","+getY2(t, xo, yo)+" ";
- }
- //X = radius + radius * Math.cos(degToRad(180 - 2*alpha))
- //Y = radius + radius * Math.sin(degToRad(180 - 2*alpha))
- //dstring3="M"+-xo+","+0 +" " +  "A" + radius + "," + radius + " " + "1 0,1" + " " + X + "," + Y  + " "+ "z";
- fPlot.setAttributeNS(null, "d", dstring);
- fPlot2.setAttributeNS(null, "d", dstring2);
- //circle.setAttributeNS(null, "d", dstring3);
-}
+        if (i < 15) {
+            if ((radius + 2*detectors_x*radius) < width_of_field) {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius + 10) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x = radius + 2*detectors_x*radius;
+                }
+                y = radius + 2*detectors_y*radius;
+                detectors_x++;
+            } else {
+                detectors_x = 0;
+                detectors_y++;
+                x = radius + 2*detectors_x*radius;
+                y = radius + 2*detectors_y*radius;
+                detectors_x++;
+            }
+        } else {
+            if ((2*radius + 2*detectors_x*radius) < width_of_field) {
+                if ((radius + 2*detectors_x*radius) > width_of_field - radius + 10) {
+                    x =  2*detectors_x*radius;
+                } else {
+                    x = 2*radius + 2*detectors_x*radius;
+                }
+                y = 2*radius + 2*detectors_y*radius;
+                detectors_x++;
+            } else {
+                detectors_x = 0;
+                detectors_y++;
+                x = 2*radius + 2*detectors_x*radius;
+                y = 2*radius + 2*detectors_y*radius;
+                detectors_x++;
+            }
+        }
 
-// Устанавливаем параметры отображения сектора
-function setSector(radius, xo, yo, sector){
-	sector.setAttribute('r', radius);
-	sector.setAttribute('cx', -xo);
-	var L = getL(radius);
-	var offL = 2 * Math.PI * radius - L;
-	var offsetL = Math.PI * radius / 4 + 3*L - 1*L/4;
-	sector.setAttribute('stroke-dasharray', L + " " + offL);
-	sector.setAttribute('stroke-dashoffset', offsetL);
-	sector.setAttribute('transform', 'rotate(' + ' ' +  '-180' + ' ' + -xo  + ' ' + yo + ')');
+        if (delete_circles === 0) {
+            makeCircle(x, y, radius, actually_detectors);
+            sectors.push({
+                xo: x,
+                yo: y,
+                r: radius,
+                isActive: 0,
+                balls: []
+            });
+            actually_detectors ++;
+        }
+    }
 }
 
 
-// Анимация движения детектируемого объекта
-yp[0] = Math.random()*200;
+function setData () {
+    balls_quantity = document.getElementById("objects").value;
+ 	number_circles = document.getElementById("detectors").value;
 
-CreateBalls();
-setTimeout('Run2()', speed);
+ 	field.style.display="flex";
+ 	timer_online.style.display="block";
+    timer_certain.style.display="block";
+    configuration.style.display="none";
 
-function CreateBalls(){
+    let html = `<p>Количество объектов - <span style="color:red">${balls_quantity}</span>;&nbsp;&nbsp;</p> <p> Количество датчиков -<span style="color:red"> ${number_circles}</span>.</p>`;
+    document.querySelector('#experiment_data').insertAdjacentHTML("afterBegin", html);
+
+    makeDetectors(number_circles);
+ 	сreateBalls(balls_quantity);
+
+ 	for (let b=0; b<number_circles; b++) {
+        target_sectors.push(1)
+    }
+
+ 	deleteDetectors();
+}
+
+function deleteDetectors () {
+    let detector_circles = document.querySelectorAll('.detector-circle');
+    for (let o=0; o<detector_circles.length; o++) {
+        detector_circles[o].onclick = function() {
+            target_sectors_counter = 0;
+            for (let c=0; c<target_sectors.length; c++) {
+                if (target_sectors[c] === 0) {
+                    target_sectors_counter++;
+                }
+                if ((c-target_sectors_counter) === o) {
+                    target_sectors[c] = 0;
+                    sectors_for_delete.push(c);
+                }
+            }
+            sectors = [];
+            objects_group = document.getElementById('objects-group');
+            objects_group.innerHTML = '';
+            detectors_x = 0;
+            detectors_y = 0;
+            let html = `<p>Количество объектов - <span style="color:red">${balls_quantity}</span>;&nbsp;&nbsp;</p> <p> Количество датчиков -<span style="color:red"> ${number_circles-sectors_for_delete.length}</span>.</p>`;
+            document.querySelector('#experiment_data').innerHTML='';
+            document.querySelector('#experiment_data').insertAdjacentHTML("afterBegin", html);
+            makeDetectors(Number(number_circles));
+            deleteDetectors()
+        }
+    }
+}
+
+function makeCircle(xo, yo, r, j) {
+    let circle = `<svg class="detector-circle"><circle  id="circle-${j}" r="${r}" cx="${xo}" cy="${yo}" fill="white" stroke="#4793bf"/></svg>`;
+    let objects_group = document.getElementById('objects-group');
+    objects_group.insertAdjacentHTML('beforeEnd', circle);
+}
+
+
+
+function сreateBalls(balls_quantity){
 	for (i=0; i<balls_quantity; i++){
 		field.insertAdjacentHTML('afterbegin', `<div id="ball-${i}" class="ball"</div>`);
-		yp[i] = 100 + 200/balls_quantity*i;
-		xp[i] = 50 + i*30;
+        yp[i] = getRandomInt(5, 400);
+		xp[i] =  -400 + getRandomInt(5, 100);
 		document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
 	}
 }
 
-let step_y;
-let current_ball;
 
-function Run2(){
+// Direction of movement
+function Run_left_right(){
 	for (i=0; i<balls_quantity; i++){
+	    current_ball = document.getElementById(`ball-${i}`);
 		step_y = 4;
 	  	xp[i] += step_y;
-	  	if ((xp[i] < -500) || (xp[i] >500 )) {
-	  		xp[i] = 0;
+	  	if ((xp[i] < -500) || (xp[i] >800 )) {
+	  		xp[i] = -350 + getRandomInt(5, 100);
+	  		current_ball.style.top = getRandomInt(1, 350) + "px";
 	  	}
-	  	//document.getElementById(`ball-${i}`).style.top = yp[i] + "px";
-		current_ball = document.getElementById(`ball-${i}`);
 	    current_ball.style.left = xp[i] + "px";
-
-	    Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, i, 1);
-	    Pos(xo2, yo, radius, fPlota, fPlota2, sector2, current_ball, i, 2);
-
+        getPosition(current_ball, i);
+        if ((xp[i] < 0) || ( xp[i] > width_of_field)) {
+            isActiveFiedls[i] = 0
+        } else {
+            isActiveFiedls[i] = 1
+        }
 	}
-
-	balls_movement_2 = setTimeout('Run2()', speed);
+	sum_balls = 0;
+	isActiveFiedls.forEach(function(item) {
+	    sum_balls = sum_balls + item
+    });
+    if (sum_balls>0) {
+        field.style.background="#FFFFA1"
+    } else {
+        field.style.background="#FFFFFF"
+    }
+	balls_movement = setTimeout('Run_left_right()', speed);
 }
 
+function Run_left_and_right(){
+	for (i=0; i<balls_quantity; i++){
+	    current_ball = document.getElementById(`ball-${i}`);
+		step_y = 4;
+		if (i%2=== 0) {
+		    xp[i] += step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = -350 + getRandomInt(5, 100);
+                current_ball.style.top = getRandomInt(1, 350) + "px";
+            }
+        } else {
+		    xp[i] -= step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = 800 - getRandomInt(5, 100);
+                current_ball.style.top = getRandomInt(1, 350) + "px";
+            }
+        }
 
-function Run(xo, yo, radius) {
-	    let sty = 4;
-	  	yp[0] += sty;
-	  	if ((yp[0] < -500) || (yp[0] >500 )) {
-	  		yp[0] = 0
-	  	}
-	  	//document.getElementById("ball").style.top = yp[i] + "px";
-	    current_ball = document.getElementById("ball");
-	    current_ball.style.left = yp[0] + "px";
-
-
-	    Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, balls_quantity, 1);
-	    Pos(xo2, yo, radius, fPlota, fPlota2, sector2, current_ball, balls_quantity, 2);
-
-		balls_movement_1 = setTimeout('Run(xo, yo, radius)', speed);
-}
-
-
-// Определяем реакцию датчика
-function Pos(xo, yo, radius, fPlot, fPlot2, sector, current_ball, i, detector) {
-	//var ball = document.getElementById('ball'); // берем интересующий элемент
-	//var posX = ball.offsetLeft;  // верхний отступ эл-та от родителя
-	//var posY = ball.offsetTop; // левый отступ эл-та от родителя
-		let posX = current_ball.offsetLeft;  // верхний отступ эл-та от родителя
-		let posY = current_ball.offsetTop;  // верхний отступ эл-та от родителя
-		obgMain = Detection(posX, posY, xo, yo, radius, fPlot, fPlot2, sector, i, detector);
-}
-
-// Определяем выходные данные датчика при движении 2х объектов
-function currentDistance (obgMain, objUser, fPlot, fPlot2, sector) {
-	if ((obgMain - objUser) === 0){
-		ikSensor = 400;
-   		document.getElementById("coordinates").innerHTML = ikSensor ;
-		fPlot.setAttribute('stroke',"#4793bf");
-		fPlot2.setAttribute('stroke',"#4793bf");
-		sector.setAttribute('stroke',"#4793bf");
-		isActive = 0;
-	} else {
-		if (obgMain === 400) {
-			console.log('Я в поле');
-			ikSensor = objUser;
-		} else if (objUser === 400) {
-			console.log('Мяч в поле');
-			ikSensor = obgMain;
-		} else {
-			if ((obgMain - objUser) > 0) {
-				console.log('ближе мой');
-				ikSensor = objUser;
-				console.log(ikSensor);
-			} else {
-				console.log('ближе обычный');
-				ikSensor = obgMain;
-				console.log(ikSensor)
-			}
-		}
-		isActive = 1;
-		fPlot.setAttribute('stroke', "#d6313c");
-		fPlot2.setAttribute('stroke', "#d6313c");
-		sector.setAttribute('stroke', "#d6313c");
-		document.getElementById("coordinates").innerHTML = ikSensor;
+	    current_ball.style.left = xp[i] + "px";
+        getPosition(current_ball, i);
+        if ((xp[i] < 0) || ( xp[i] > width_of_field)) {
+            isActiveFiedls[i] = 0
+        } else {
+            isActiveFiedls[i] = 1
+        }
 	}
+	sum_balls = 0;
+	isActiveFiedls.forEach(function(item) {
+	    sum_balls = sum_balls + item
+    });
+    if (sum_balls>0) {
+        field.style.background="#FFFFA1"
+    } else {
+        field.style.background="#FFFFFF"
+    }
+	balls_movement = setTimeout('Run_left_and_right()', speed);
+}
+
+function RunRandom(){
+	for (i = 0; i<balls_quantity; i++){
+	    current_ball = document.getElementById(`ball-${i}`);
+	  	step_y = 4;
+
+	  	if (i % 2 === 0) {
+		    xp[i] += step_y;
+		    yp[i] += step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = -350 + getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = -100 + getRandomInt(5, 100);
+            }
+        } else if (i % 3 === 0) {
+		    xp[i] -= step_y;
+		    yp[i] -= step_y;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = 800 - getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = 400 - getRandomInt(5, 100);
+            }
+        }
+	  	if (i % 4 === 0) {
+		    xp[i] -= step_y*2;
+		    yp[i] += step_y*2;
+            if ((xp[i] < -500) || (xp[i] >800 )) {
+                xp[i] = 700 - getRandomInt(5, 100);
+            }
+            if ((yp[i] > 500) || (yp[i] <-100 )) {
+                yp[i] = 400 - getRandomInt(5, 100);
+            }
+        }
+
+	    current_ball.style.left = xp[i] + "px";
+	  	current_ball.style.top = yp[i] + "px";
+        getPosition(current_ball, i);
+        if ((xp[i] < 0) || ( xp[i] > width_of_field) || (yp[i] > 400) || (yp[i] < 0)) {
+            isActiveFiedls[i] = 0
+        } else {
+            isActiveFiedls[i] = 1
+        }
+	}
+	sum_balls = 0;
+	isActiveFiedls.forEach(function(item) {
+	    sum_balls = sum_balls + item
+    });
+    if (sum_balls>0) {
+        field.style.background="#FFFFA1"
+    } else {
+        field.style.background="#FFFFFF"
+    }
+	balls_movement = setTimeout('RunRandom()', speed);
 }
 
 
-function Detection(posX, posY, xo, yo, radius, fPlot, fPlot2, sector, i, detector) {
-   //if (i===0) {console.log(posY, posX, xo, getY2(posX, xo, yo))}
-   if ((posY>getY(posX, xo, yo)) && (posY>getY2(posX, xo, yo)) && (posY<Math.sqrt(radius*radius-xo*xo))){
-		IKsensor=Math.sqrt((posY-yo)**2+(posX+xo)**2);
-		if (detector === 1) {
-			detector_1[i] = 1;
-			detector_1_value[i] = Math.sqrt((posY-yo)**2+(posX+xo)**2);
-		} else if (detector === 2) {
-			detector_2[i] = 1;
-			detector_2_value[i] = Math.sqrt((posY-yo)**2+(posX+xo)**2);
-		}
-		//balls_in_field[i] = 1;
-   } else {
-   		if (detector === 1) {
-			detector_1[i] = 0;
-			detector_1_value[i] = 0
-		} else if (detector === 2) {
-			detector_2[i] = 0;
-			detector_2_value[i] = 0
-		}
-   		IKsensor = 400;
-   		//balls_in_field[i] = 0;
-   }
-   /*sum = 0;
-   balls_in_field.forEach(function (item) {
-			sum = sum + item;
-		});
-   console.log(sum);*/
 
-    console.log('Первый', detector_1);
-	console.log('Второй', detector_2);
-
-   //currentDistance(obgMain, objUser, fPlot, fPlot2, sector);
-   return IKsensor
-}
-
-// Формирование результатов экспериментов
-function addData(time, delay, distance1, distance2, realState) {
-  data.push({
-    time: time,
-    delay: delay,
-    distance1: distance1,
-	distance2: distance2,
-    onField: realState
-  });
+function getPosition(current_ball, i) {
+    let posX = current_ball.offsetLeft;  // верхний отступ эл-та от родителя
+    let posY = current_ball.offsetTop;  // верхний отступ эл-та от родителя
+    detectBalls(posX, posY, i);
 }
 
 
-// Таймер
-var startTimer = function(){
+function detectBalls(posX, posY, i) {
+    for (let h = 0; h < sectors.length; h++){
+        let id = 'circle-' + h;
+        let current_detector = document.getElementById(id);
+        if (current_detector === null) {
+        } else {
+
+            if (Math.sqrt(((posY - sectors[h].yo) * (posY - sectors[h].yo) + (posX - sectors[h].xo) * (posX - sectors[h].xo))) <= (sectors[h].r + 25)) {
+                sectors[h].balls[i] = 1
+            } else {
+                sectors[h].balls[i] = 0
+            }
+            let sum = 0;
+            sectors[h].balls.forEach(function(item) {
+                sum = sum + item;
+            });
+
+            if (sum>0) {
+                current_detector.setAttribute('stroke', "#d6313c");
+                current_detector.setAttribute('fill', "#d6313c");
+                sectors[h].isActive = 1
+            } else {
+                current_detector.setAttribute('stroke', "#4793bf");
+                current_detector.setAttribute('fill', "#4793bf");
+                sectors[h].isActive = 0
+            }
+        }
+    }
+}
+
+
+function addData(actually) {
+    let data_exp_1 = {};
+    for (let z = 0; z < sectors.length; z++){
+        data_exp_1[`ball-${z}`] = sectors[z].isActive
+    }
+    data_exp_1['actually'] = actually;
+    data.push(data_exp_1)
+}
+
+
+// Timer
+function startTimer(){
 	currentExperiment = setInterval(function(){
-		let sum = 0;
-		for (let j=0; j<balls_quantity; j++) {
-			if (detector_1[j]===1) {
-				sum = sum + 1;
-			}
-			if (detector_2[j]===1) {
-				sum = sum + 1;
-			}
-		}
+	    // Количество сработавших датчиков
+        sum_detection = 0;
+		for (let d = 0; d < sectors.length; d++){
+		    sum_detection = sectors[d].isActive + sum_detection
+        }
+        if (sum_detection>0) { detector = 1} else {detector = 0}
+        if (sum_balls>0) { isBallsInField = 1} else {isBallsInField = 0}
 
-		detector1 = Math.max.apply(null, detector_1_value);
-		detector2 = Math.max.apply(null, detector_2_value);
-
-		if (detector1 === 0) {
-			detector1 = 400
-		}
-
-		if (detector2 === 0) {
-			detector2 = 400
-		}
-
-		isActive = sum;
-		addData(experimentTime, sensorDelay, detector1, detector2, isActive);
+		addData(isBallsInField);
 		experimentTime = experimentTime + systemTime;
 	}, systemTime);
+
 	var intervalID = setInterval(function(){
-		k=k+1;
-		var now = new Date();
-		var clock = document.getElementById("clock");
+		k = k+1;
+		let now = new Date();
+		let clock = document.getElementById("clock");
 		now.setHours(0, 0, k, 0);
 		clock.innerHTML = now.toLocaleTimeString();
 	}, 1000);
 	stopCount = intervalID;
-};
+}
 
-var stopTimer = function(){
+function stopTimer(){
 	clearInterval(stopCount);
 	clearInterval(currentExperiment);
-
 	let json = JSON.stringify(data);
 	let experimentData = document.getElementById("id_data_of_experiment");
-	console.log(experimentData)
 	experimentData.value = json;
-
 	document.querySelector('.send').click();
-	//sendData(data);
+}
+
+
+let timers = [];
+timers.push(document.getElementById('one-min'));
+timers.push(document.getElementById('two-min'));
+timers.push(document.getElementById('three-min'));
+timers.push(document.getElementById('five-min'));
+
+let timer_n = document.getElementById('n-min');
+let all_time = document.getElementById('all-time');
+let custom_time = document.getElementById('custom-time');
+custom_time.style.display="none";
+
+for (let g=0; g<timers.length; g++) {
+    timers[g].onclick = function() {
+        timers[g].classList.add('timers__button--active');
+        startTimer();
+        setTimeout(stopTimer, 1000 * 60 * (g+1));
+    }
+}
+
+timer_n.onclick = function() {
+    all_time.style.display="none";
+    custom_time.style.display="block";
 };
 
 
-// Эксперименты с мышкой
-/*
-$('html').mousemove(function(e){
-	var x = e.pageX - this.offsetLeft;
-	var y = e.pageY - this.offsetTop;
-	$('div.movablediv').css({'top': y,'left': x});
-	let posX = ball.offsetLeft;  // верхний отступ эл-та от родителя
-	let posY = ball.offsetTop; // левый отступ эл-та от родителя
-	objUser = Detection(x - field.offsetLeft, y - field.offsetTop, xo, yo, radius, fPlot, fPlot2, sector, 5);
-});
-
- */
 
 
-//Для удобства отладки
+const speed= 30; // Cкорость движения
+let balls_movement;
+let is_balls_move = false;
+// Start/stop movement of circles
 addEventListener("keydown", function(event) {
-    if ((event.keyCode === 32)&&(balls_movement === true)) {
-    	clearTimeout(balls_movement_1);
-      	clearTimeout(balls_movement_2);
-      	balls_movement = false;
-	} else if ((event.keyCode === 32)&&(balls_movement === false)){
-    	balls_movement = true;
-		setTimeout('Run2()', speed);
-    	//setTimeout('Run()', speed);
+    if ((event.keyCode === 32) && (is_balls_move === true)) {
+      	is_balls_move = false;
+      	clearTimeout(balls_movement);
+	} else if ((event.keyCode === 32) && (is_balls_move === false)) {
+    	is_balls_move = true;
+        for (let i=0; i<rad.length; i++) {
+            if (rad[i].checked) {
+                switch(i) {
+                    case 0:
+                        setTimeout('Run_left_right()', speed);
+                        break;
+                    case 1:
+                        setTimeout('Run_left_and_right()', speed);
+                        break;
+                    case 2:
+                        setTimeout('RunRandom()', speed);
+                        break;
+                    default:
+                        alert('Ошибка!')
+                }
+            }
+        }
 	}
-  });
+});
